@@ -1,11 +1,11 @@
-<!-- Animated Omani Avatar Guide — Right-edge peeping mechanic -->
-<div id="avatar-guide" class="fixed z-[90] pointer-events-none" style="right: 0; top: 30%; transform: translateX(100%);">
-  <!-- Peeping character strip (only head visible when peeking) -->
-  <div id="avatar-character" class="pointer-events-auto cursor-pointer drop-shadow-xl" style="width: 90px;" title="Tap me for help">
-    <img src="/images/avatar-omani.svg" alt="Omani Guide" class="w-full h-full" id="avatar-svg-img" />
+<!-- Animated Omani Avatar Guide — Top-right shy-peek mechanic -->
+<div id="avatar-guide" class="fixed z-[90] pointer-events-none" style="right: 0; top: 60px; transform: translateX(100%);">
+  <!-- Avatar character (clipped to show only head when peeking) -->
+  <div id="avatar-character" class="pointer-events-auto cursor-pointer" style="width: 100px; height: 120px; overflow: hidden;" title="Tap me for help">
+    <img src="/images/avatar-omani.svg?v=<%= Date.now() %>" alt="Omani Guide" class="w-full" id="avatar-svg-img" style="margin-top: -5px;" />
   </div>
   <!-- Speech bubble — positioned to the left of the avatar -->
-  <div id="avatar-bubble" class="glass-panel absolute px-5 py-4 rounded-2xl rounded-br-sm border border-primary/20 shadow-[0_0_30px_rgba(2,230,0,0.1)] pointer-events-auto opacity-0 transition-all duration-500" style="right: 95px; top: 5px; width: 280px; transform: scale(0.8) translateX(20px);">
+  <div id="avatar-bubble" class="glass-panel absolute px-5 py-4 rounded-2xl rounded-tr-sm border border-primary/20 shadow-[0_0_30px_rgba(2,230,0,0.1)] pointer-events-auto opacity-0 transition-all duration-500" style="right: 110px; top: 10px; width: 280px; transform: scale(0.8) translateX(20px);">
     <!-- Bubble tail pointing right -->
     <div class="absolute -right-2 top-6 w-0 h-0" style="border-top: 8px solid transparent; border-bottom: 8px solid transparent; border-left: 10px solid rgba(19,43,69,0.6);"></div>
     <p id="avatar-message" class="text-on-surface text-base font-body leading-relaxed"></p>
@@ -29,8 +29,8 @@
   }
   [dir="rtl"] #avatar-bubble {
     right: auto !important;
-    left: 95px;
-    border-radius: 1rem 1rem 0.25rem 1rem;
+    left: 110px;
+    border-radius: 1rem 1rem 1rem 0.25rem;
   }
   [dir="rtl"] #avatar-bubble > div:first-child {
     right: auto;

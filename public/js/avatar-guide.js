@@ -6,8 +6,8 @@ const AvatarGuide = (function () {
   'use strict';
 
   const STORAGE_KEY = 'du-avatar-hidden';
-  const PEEK_PX = 55;           // how many px of character to show when peeking
-  const EXPAND_OFFSET = 95;     // how far to slide in when fully expanded
+  const PEEK_PX = 35;           // how many px of head to show (shy peek — just kumma + forehead)
+  const EXPAND_OFFSET = 105;    // how far to slide in when fully expanded (show full character)
   const PEEK_DELAY = 1500;      // ms before first peek on page load
   const AUTO_RETREAT_MS = 8000; // ms before auto-retreat from expanded
 
@@ -105,16 +105,19 @@ const AvatarGuide = (function () {
       });
     }
 
-    // First visit: auto-peek then auto-expand with message
+    // First visit: auto-peek, then auto-expand briefly, then retreat to peek
     var route = window.location.pathname;
     var msg = messages[route];
     if (msg) {
       setTimeout(function () {
         peek();
-        // On first visit, auto-expand after a beat
+        // On first visit only, auto-expand so user discovers it, then retreat
         if (firstVisit) {
-          setTimeout(function () { expand(); }, 1200);
           firstVisit = false;
+          setTimeout(function () {
+            expand();
+            // After showing the message, retreat back to shy peek
+          }, 1800);
         }
       }, msg.delay || PEEK_DELAY);
     }

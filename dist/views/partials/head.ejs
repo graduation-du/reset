@@ -641,19 +641,22 @@
     #avatar-guide {
       transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
     }
-    #avatar-character {
+    /* Gentle bob only when peeking to draw attention */
+    #avatar-guide.avatar-peek #avatar-character {
       animation: avatarPeekBob 2.5s ease-in-out infinite;
+      filter: drop-shadow(0 0 8px rgba(2,230,0,0.3));
+      cursor: pointer;
     }
     @keyframes avatarPeekBob {
       0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-6px); }
+      50% { transform: translateY(-4px); }
     }
-    /* Subtle glow hint when peeking to draw attention */
-    #avatar-guide.avatar-peek #avatar-character {
-      filter: drop-shadow(0 0 8px rgba(2,230,0,0.25));
-    }
+    /* Stop bobbing when expanded, add drop shadow */
     #avatar-guide.avatar-expanded #avatar-character {
-      filter: drop-shadow(0 4px 12px rgba(0,0,0,0.2));
+      animation: none;
+      filter: drop-shadow(0 4px 16px rgba(0,0,0,0.25));
+      overflow: visible !important;
+      height: auto !important;
     }
     /* Hide avatar in high contrast */
     html.high-contrast #avatar-guide { display: none !important; }
