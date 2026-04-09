@@ -1,0 +1,21 @@
+{
+  "name": "du-ad-reset-portal",
+  "version": "1.0.0",
+  "description": "Dhofar University E-Kiosk Active Directory Password Reset System - Phase 1",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "build": "node build.js"
+  },
+  "dependencies": {
+    "compression": "^1.8.1",
+    "dotenv": "^16.4.7",
+    "ejs": "^3.1.10",
+    "express": "^4.21.2",
+    "helmet": "^8.1.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

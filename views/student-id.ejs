@@ -1,0 +1,303 @@
+<%- include('partials/head') %>
+
+<%- include('partials/navbar') %>
+<%- include('partials/background') %>
+<%- include('partials/overlays') %>
+
+<main class="relative z-10 flex flex-col items-center justify-center min-h-screen px-10 pt-28 pb-24" data-idle-enabled="true">
+  <div class="w-full max-w-3xl screen-transition">
+
+    <%- include('partials/progress', { step: 1 }) %>
+
+    <div class="glass-panel p-12 rounded-[2.5rem] shadow-[0_0_100px_rgba(0,0,0,0.5)] border-t border-white/10 relative overflow-hidden">
+      <div class="absolute -top-24 -right-24 w-48 h-48 bg-primary/20 blur-3xl rounded-full"></div>
+
+      <div class="relative z-10 flex flex-col items-center text-center">
+        <!-- Icon -->
+        <div class="w-20 h-20 rounded-2xl bg-primary/10 flex items-center justify-center mb-8">
+          <span class="material-symbols-outlined filled text-5xl text-primary">badge</span>
+        </div>
+
+        <h2 class="font-headline text-5xl font-bold text-white mb-3" data-i18n="sid.title">Enter Your Student ID</h2>
+        <p class="text-on-surface-variant text-xl mb-4" data-i18n="sid.subtitle">Your Student ID is printed on your university card</p>
+
+        <!-- Help Link -->
+        <button id="help-what-need" class="mb-8 inline-flex items-center gap-3 px-6 py-3 rounded-full glass-panel border border-secondary/20 text-secondary text-lg font-label hover:border-secondary/40 hover:shadow-[0_0_15px_rgba(94,212,255,0.15)] transition-all active:scale-95">
+          <span class="material-symbols-outlined text-xl">help_outline</span>
+          <span data-i18n="sid.whatNeed">First time? See what you'll need</span>
+        </button>
+
+        <!-- Input -->
+        <div class="w-full mb-8">
+          <div class="relative">
+            <span class="material-symbols-outlined input-icon-start text-on-surface-variant text-2xl">person</span>
+            <input
+              type="text"
+              id="student-id-input"
+              inputmode="text"
+              autocomplete="off"
+              maxlength="20"
+              placeholder="Enter Student ID"
+              data-i18n-placeholder="sid.placeholder"
+              data-vkb
+              data-privacy
+              class="w-full py-6 rounded-2xl bg-surface-container-highest/50 border border-outline-variant/30 text-white text-2xl font-headline tracking-wide placeholder:text-on-surface-variant/50 focus:outline-none focus:border-primary focus:shadow-[0_0_20px_rgba(2,230,0,0.2)] transition-all input-pad-icon"
+            />
+          </div>
+          <p id="student-id-error" class="hidden mt-3 text-error text-lg text-left flex items-center gap-2">
+            <span class="material-symbols-outlined text-xl">error</span>
+            <span></span>
+          </p>
+        </div>
+
+        <!-- Status -->
+        <div id="student-id-status" class="mb-8 flex items-center gap-3 text-lg text-on-surface-variant/60">
+          <span class="material-symbols-outlined text-xl">hourglass_empty</span>
+          <span data-i18n="sid.status">Awaiting Student ID</span>
+        </div>
+
+        <!-- Buttons -->
+        <div class="w-full flex flex-col gap-4">
+          <button
+            id="student-id-submit"
+            class="w-full py-6 rounded-2xl bg-gradient-to-br from-primary to-primary-container font-headline font-bold text-2xl text-on-primary transition-all hover:scale-[1.02] active:scale-95 shadow-[0_0_20px_rgba(2,230,0,0.3)] disabled:opacity-40 disabled:hover:scale-100 disabled:shadow-none flex items-center justify-center gap-4"
+          >
+            <span class="btn-text" data-i18n="sid.verify">Verify & Continue</span>
+            <span class="btn-spinner hidden">
+              <svg class="animate-spin h-7 w-7" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
+            </span>
+            <span class="btn-loading-text hidden">Verifying…</span>
+            <span class="material-symbols-outlined btn-arrow text-2xl">arrow_forward</span>
+          </button>
+          <div class="flex gap-4">
+            <a href="/" class="ripple flex-1 py-5 rounded-2xl border border-outline-variant/30 glass-panel font-headline font-bold text-xl text-white text-center transition-all hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-3">
+              <span class="material-symbols-outlined text-2xl">arrow_back</span> <span data-i18n="sid.back">Back</span>
+            </a>
+            <button id="cancel-btn" class="ripple flex-1 py-5 rounded-2xl border border-error-container/30 glass-panel font-headline font-bold text-xl text-error/80 text-center transition-all hover:scale-[1.02] active:scale-95">
+              <span data-i18n="sid.cancel">Cancel & Exit</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Attempt Counter (hidden until failures) -->
+        <p id="attempt-counter" class="hidden mt-5 text-on-surface-variant/60 text-base">
+          <span data-i18n="shared.attempts">Attempts remaining:</span> <span id="attempts-left">3</span>
+        </p>
+      </div>
+    </div>
+  </div>
+</main>
+
+<%- include('partials/footer') %>
+
+<!-- What Do I Need? Help Modal -->
+<div id="help-modal" class="fixed inset-0 z-[997] hidden items-center justify-center" style="background: rgba(0,20,41,0.92); backdrop-filter: blur(12px);">
+  <div class="glass-panel p-12 rounded-[2.5rem] border border-white/10 max-w-2xl mx-auto shadow-[0_0_100px_rgba(0,0,0,0.5)] screen-transition">
+    <!-- Header -->
+    <div class="flex flex-col items-center text-center mb-10">
+      <div class="w-20 h-20 rounded-2xl bg-secondary/10 flex items-center justify-center mb-6">
+        <span class="material-symbols-outlined filled text-5xl text-secondary">checklist</span>
+      </div>
+      <h2 class="font-headline text-4xl font-bold text-white mb-3" data-i18n="help.title">What You'll Need</h2>
+      <p class="text-on-surface-variant text-xl" data-i18n="help.desc">Have these items ready before you start:</p>
+    </div>
+
+    <!-- Items Grid -->
+    <div class="grid grid-cols-2 gap-4 mb-10">
+      <div class="glass-panel p-6 rounded-2xl border border-primary/15 flex items-center gap-5">
+        <div class="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
+          <span class="material-symbols-outlined filled text-3xl text-primary">badge</span>
+        </div>
+        <div>
+          <p class="text-white font-headline font-semibold text-lg" data-i18n="help.item1">Student ID Card</p>
+          <p class="text-on-surface-variant/60 text-sm" data-i18n="help.item1d">Your university student number</p>
+        </div>
+      </div>
+      <div class="glass-panel p-6 rounded-2xl border border-secondary/15 flex items-center gap-5">
+        <div class="w-14 h-14 rounded-xl bg-secondary/10 flex items-center justify-center flex-shrink-0">
+          <span class="material-symbols-outlined filled text-3xl text-secondary">calendar_month</span>
+        </div>
+        <div>
+          <p class="text-white font-headline font-semibold text-lg" data-i18n="help.item2">Date of Birth</p>
+          <p class="text-on-surface-variant/60 text-sm" data-i18n="help.item2d">As registered with the university</p>
+        </div>
+      </div>
+      <div class="glass-panel p-6 rounded-2xl border border-tertiary/15 flex items-center gap-5">
+        <div class="w-14 h-14 rounded-xl bg-tertiary/10 flex items-center justify-center flex-shrink-0">
+          <span class="material-symbols-outlined filled text-3xl text-tertiary">id_card</span>
+        </div>
+        <div>
+          <p class="text-white font-headline font-semibold text-lg" data-i18n="help.item3">Civil ID Number</p>
+          <p class="text-on-surface-variant/60 text-sm" data-i18n="help.item3d">Your national identity card number</p>
+        </div>
+      </div>
+      <div class="glass-panel p-6 rounded-2xl border border-primary/15 flex items-center gap-5">
+        <div class="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
+          <span class="material-symbols-outlined filled text-3xl text-primary">smartphone</span>
+        </div>
+        <div>
+          <p class="text-white font-headline font-semibold text-lg" data-i18n="help.item4">Registered Mobile</p>
+          <p class="text-on-surface-variant/60 text-sm" data-i18n="help.item4d">To receive your new password via SMS</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Time estimate -->
+    <div class="flex items-center gap-3 justify-center text-on-surface-variant/60 text-lg mb-8">
+      <span class="material-symbols-outlined text-xl">schedule</span>
+      <span data-i18n="help.time">Takes approximately 3 minutes</span>
+    </div>
+
+    <!-- Close Button -->
+    <button id="help-modal-close" class="w-full py-6 rounded-2xl bg-gradient-to-br from-primary to-primary-container font-headline font-bold text-2xl text-on-primary transition-all hover:scale-[1.02] active:scale-95 ripple shadow-[0_0_20px_rgba(2,230,0,0.3)] flex items-center justify-center gap-3" data-i18n="help.gotIt">
+      Got It, Let's Go!
+    </button>
+  </div>
+</div>
+
+<script>
+(function() {
+  var helpBtn = document.getElementById('help-what-need');
+  var helpModal = document.getElementById('help-modal');
+  var helpClose = document.getElementById('help-modal-close');
+  if (!helpBtn || !helpModal) return;
+  helpBtn.addEventListener('pointerdown', function(e) {
+    e.preventDefault();
+    helpModal.classList.remove('hidden');
+    helpModal.classList.add('flex');
+    if (typeof I18N !== 'undefined') I18N.applyTranslations();
+  });
+  helpClose.addEventListener('pointerdown', function(e) {
+    e.preventDefault();
+    helpModal.classList.add('hidden');
+    helpModal.classList.remove('flex');
+  });
+  helpModal.addEventListener('pointerdown', function(e) {
+    if (e.target === helpModal) {
+      helpModal.classList.add('hidden');
+      helpModal.classList.remove('flex');
+    }
+  });
+})();
+</script>
+
+<script src="/js/idle-timeout.js"></script>
+<script src="/js/cancel.js"></script>
+<script src="/js/virtual-keyboard.js"></script>
+<script src="/js/privacy-shield.js"></script>
+<script src="/js/activity-log.js"></script>
+<script>
+  (function() {
+    const input = document.getElementById('student-id-input');
+    const submitBtn = document.getElementById('student-id-submit');
+    const errorEl = document.getElementById('student-id-error');
+    const statusEl = document.getElementById('student-id-status');
+    const attemptCounter = document.getElementById('attempt-counter');
+    const attemptsLeft = document.getElementById('attempts-left');
+    const maxAttempts = <%= config.MAX_ATTEMPTS %>;
+    let failures = parseInt(sessionStorage.getItem('studentIdFailures') || '0');
+
+    // Filter special characters
+    input.addEventListener('input', () => {
+      input.value = input.value.replace(/[^a-zA-Z0-9]/g, '');
+      hideError();
+    });
+
+    function showError(msg) {
+      errorEl.classList.remove('hidden');
+      errorEl.querySelector('span:last-child').textContent = msg;
+      input.classList.add('border-error');
+      input.classList.remove('border-outline-variant/30');
+    }
+
+    function hideError() {
+      errorEl.classList.add('hidden');
+      input.classList.remove('border-error');
+      input.classList.add('border-outline-variant/30');
+    }
+
+    function setLoading(loading) {
+      submitBtn.disabled = loading;
+      input.disabled = loading;
+      submitBtn.querySelector('.btn-text').classList.toggle('hidden', loading);
+      submitBtn.querySelector('.btn-arrow').classList.toggle('hidden', loading);
+      submitBtn.querySelector('.btn-spinner').classList.toggle('hidden', !loading);
+      submitBtn.querySelector('.btn-loading-text').classList.toggle('hidden', !loading);
+    }
+
+    function lockSession() {
+      input.disabled = true;
+      submitBtn.disabled = true;
+      showError('Too many failed attempts. Please visit the IT Help Desk for assistance.');
+      statusEl.innerHTML = '<span class="material-symbols-outlined text-base text-error">block</span> <span class="text-error">Session locked</span>';
+    }
+
+    submitBtn.addEventListener('click', async () => {
+      hideError();
+      const val = input.value.trim();
+
+      if (!val) {
+        showError('Please enter your Student ID.');
+        return;
+      }
+      if (val.length < 6) {
+        showError('Student ID must be at least 6 characters.');
+        return;
+      }
+
+      setLoading(true);
+      statusEl.innerHTML = '<span class="material-symbols-outlined text-base animate-spin">sync</span> Verifying…';
+
+      try {
+        const resp = await fetch('/api/verify/student-id', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ studentId: val })
+        });
+        const data = await resp.json();
+
+        if (data.success) {
+          if (typeof AudioFeedback !== 'undefined') AudioFeedback.play('success');
+          statusEl.innerHTML = '<span class="material-symbols-outlined text-base text-primary">check_circle</span> <span class="text-primary">Verified</span>';
+          sessionStorage.setItem('studentId', val);
+          sessionStorage.setItem('studentName', data.studentName || '');
+          sessionStorage.removeItem('studentIdFailures');
+          if (typeof ActivityLog !== 'undefined') ActivityLog.addEntry('check_circle', 'log.studentIdVerified');
+          setTimeout(() => { window.location.href = '/verify/dob'; }, 500);
+        } else {
+          if (typeof AudioFeedback !== 'undefined') AudioFeedback.play('error');
+          failures++;
+          sessionStorage.setItem('studentIdFailures', failures);
+          attemptsLeft.textContent = maxAttempts - failures;
+          attemptCounter.classList.remove('hidden');
+
+          if (failures >= maxAttempts) {
+            lockSession();
+          } else {
+            showError(data.message);
+            statusEl.innerHTML = '<span class="material-symbols-outlined text-base text-error">error</span> <span class="text-error">Verification failed</span>';
+          }
+          setLoading(false);
+        }
+      } catch (e) {
+        showError('Service temporarily unavailable. Please try again.');
+        setLoading(false);
+      }
+    });
+
+    // Enter key support
+    input.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') submitBtn.click();
+    });
+
+    // Restore state
+    if (failures > 0) {
+      attemptsLeft.textContent = maxAttempts - failures;
+      attemptCounter.classList.remove('hidden');
+    }
+    if (failures >= maxAttempts) lockSession();
+  })();
+</script>
+
+</body>
+</html>

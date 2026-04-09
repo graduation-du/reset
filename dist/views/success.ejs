@@ -1,0 +1,225 @@
+<%- include('partials/head') %>
+<%- include('partials/avatar-guide') %>
+
+<style>
+  @keyframes checkBounce {
+    0% { transform: scale(0); opacity: 0; }
+    60% { transform: scale(1.2); opacity: 1; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+  .check-anim { animation: checkBounce 0.6s ease-out; }
+
+  /* Confetti */
+  .confetti-container {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 50;
+    overflow: hidden;
+  }
+  .confetti-piece {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    top: -20px;
+    opacity: 0;
+    animation: confettiFall var(--duration) var(--delay) ease-out forwards;
+  }
+  @keyframes confettiFall {
+    0% { opacity: 1; transform: translateY(0) rotate(0deg) scale(1); }
+    80% { opacity: 1; }
+    100% { opacity: 0; transform: translateY(100vh) rotate(var(--spin)) scale(0.5); }
+  }
+</style>
+
+<%- include('partials/navbar') %>
+<%- include('partials/background') %>
+
+<!-- Confetti Burst -->
+<div id="confetti-container" class="confetti-container" aria-hidden="true"></div>
+
+<main class="relative z-10 flex flex-col items-center justify-center min-h-screen px-10 pt-28 pb-40">
+  <div class="w-full max-w-3xl screen-transition">
+
+    <div class="glass-panel p-12 rounded-[2.5rem] shadow-[0_0_100px_rgba(0,0,0,0.5)] border-t border-white/10 relative overflow-hidden">
+      <div class="absolute -top-24 -right-24 w-48 h-48 bg-primary/20 blur-3xl rounded-full"></div>
+      <div class="absolute -bottom-24 -left-24 w-48 h-48 bg-secondary/20 blur-3xl rounded-full"></div>
+
+      <div class="relative z-10 flex flex-col items-center text-center">
+
+        <!-- Success Icon -->
+        <div class="w-24 h-24 rounded-full bg-primary/20 flex items-center justify-center mb-6 check-anim shadow-[0_0_40px_rgba(2,230,0,0.3)]">
+          <span class="material-symbols-outlined filled text-6xl text-primary">check_circle</span>
+        </div>
+
+        <h2 class="font-headline text-4xl font-bold text-white mb-2" data-i18n="success.title">Password Reset Successful!</h2>
+        <p class="text-on-surface-variant text-xl mb-8" data-i18n="success.subtitle">Your new password has been generated and saved.</p>
+
+        <!-- Password Format Panel -->
+        <div class="w-full glass-panel p-6 rounded-2xl border border-primary/20 mb-6">
+          <div class="flex items-center gap-4 justify-center mb-3">
+            <span class="material-symbols-outlined text-primary text-2xl">lock</span>
+            <span class="text-on-surface font-headline font-semibold text-xl" data-i18n="success.format">New Password Format</span>
+          </div>
+          <div class="bg-surface-container-lowest/60 rounded-xl px-6 py-4 mb-3">
+            <span class="font-headline font-black text-2xl text-primary tracking-wider">St@XXXXX</span>
+          </div>
+          <p class="text-on-surface-variant/60 text-base" data-i18n="success.formatDesc">Where XXXXX is a 5-digit random number</p>
+        </div>
+
+        <!-- SMS Notification -->
+        <div class="w-full glass-panel p-6 rounded-2xl border border-secondary/20 mb-6">
+          <div class="flex items-center gap-4">
+            <div class="p-3 bg-secondary/10 rounded-xl">
+              <span class="material-symbols-outlined text-secondary text-3xl">sms</span>
+            </div>
+            <div class="text-left">
+              <p class="text-on-surface font-semibold text-lg" data-i18n="success.sms">Password Sent via SMS</p>
+              <p class="text-on-surface-variant/60 text-base"><span data-i18n="success.smsTo">Sent to</span> <span id="success-mobile" class="text-secondary"></span></p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Next Steps -->
+        <div class="w-full text-left mb-7">
+          <h3 class="font-headline font-bold text-white text-lg mb-4 uppercase tracking-widest" data-i18n="success.next">Next Steps</h3>
+          <div class="space-y-4">
+            <div class="flex items-start gap-4">
+              <div class="w-9 h-9 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                <span class="text-primary font-headline font-bold text-base">1</span>
+              </div>
+              <p class="text-on-surface-variant text-lg" data-i18n="success.step1">Check your SMS for the new password</p>
+            </div>
+            <div class="flex items-start gap-4">
+              <div class="w-9 h-9 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                <span class="text-primary font-headline font-bold text-base">2</span>
+              </div>
+              <p class="text-on-surface-variant text-lg" data-i18n="success.step2">Use this password to log in to your email, ERP, or Wi-Fi</p>
+            </div>
+            <div class="flex items-start gap-4">
+              <div class="w-9 h-9 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                <span class="text-primary font-headline font-bold text-base">3</span>
+              </div>
+              <p class="text-on-surface-variant text-lg" data-i18n="success.step3">You may change your password after logging in</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Auto-Reset Timer -->
+        <div class="mb-6 flex items-center gap-3 text-lg text-on-surface-variant/60">
+          <span class="material-symbols-outlined text-xl">timer</span>
+          <span data-i18n="success.timer">This screen will reset in</span> <span id="success-countdown" class="text-secondary font-headline font-bold text-2xl ml-1">0:<%= config.SUCCESS_COUNTDOWN %></span>
+        </div>
+
+        <!-- QR Code Section -->
+        <div class="w-full glass-panel p-6 rounded-2xl border border-outline-variant/20 mb-6 flex items-center gap-5">
+          <div id="qr-code" class="w-24 h-24 bg-white rounded-xl flex items-center justify-center flex-shrink-0 p-1 overflow-hidden"></div>
+          <div class="text-left">
+            <p class="text-on-surface font-semibold text-lg" data-i18n="success.qr">Scan to change password from your phone</p>
+            <p class="text-on-surface-variant/50 text-base mt-1">outlook.office365.com</p>
+          </div>
+        </div>
+
+        <!-- Done Button -->
+        <button id="done-btn" class="ripple w-full py-6 rounded-2xl bg-gradient-to-br from-primary to-primary-container font-headline font-bold text-2xl text-on-primary transition-all hover:scale-[1.02] active:scale-95 shadow-[0_0_20px_rgba(2,230,0,0.3)] flex items-center justify-center gap-4">
+          <span class="material-symbols-outlined text-2xl">home</span>
+          <span data-i18n="success.done">Finish & Return to Home</span>
+        </button>
+
+        <!-- Privacy Note -->
+        <p class="mt-8 text-on-surface-variant/40 text-base flex items-center gap-2">
+          <span class="material-symbols-outlined text-base">security</span>
+          <span data-i18n="success.privacy">For your security, please do not share your password with anyone.</span>
+        </p>
+      </div>
+    </div>
+  </div>
+</main>
+
+<%- include('partials/footer') %>
+
+<!-- QR Code library (qrcode.js by davidshimjs) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+  (function() {
+    // Play success sound
+    if (typeof AudioFeedback !== 'undefined') AudioFeedback.play('complete');
+
+    // Confetti burst
+    (function launchConfetti() {
+      var container = document.getElementById('confetti-container');
+      if (!container) return;
+      var colors = ['#02e600', '#5ed4ff', '#ffabf3', '#77ff61', '#bbe9ff', '#ffd7f5', '#ffffff'];
+      var shapes = ['circle', 'square', 'triangle'];
+      for (var i = 0; i < 60; i++) {
+        var piece = document.createElement('div');
+        piece.className = 'confetti-piece';
+        var color = colors[Math.floor(Math.random() * colors.length)];
+        var shape = shapes[Math.floor(Math.random() * shapes.length)];
+        var size = 6 + Math.random() * 10;
+        piece.style.left = Math.random() * 100 + '%';
+        piece.style.width = size + 'px';
+        piece.style.height = size + 'px';
+        piece.style.backgroundColor = color;
+        piece.style.setProperty('--duration', (2 + Math.random() * 2) + 's');
+        piece.style.setProperty('--delay', (Math.random() * 0.8) + 's');
+        piece.style.setProperty('--spin', (Math.random() * 720 - 360) + 'deg');
+        if (shape === 'circle') piece.style.borderRadius = '50%';
+        else if (shape === 'triangle') {
+          piece.style.width = '0';
+          piece.style.height = '0';
+          piece.style.backgroundColor = 'transparent';
+          piece.style.borderLeft = size/2 + 'px solid transparent';
+          piece.style.borderRight = size/2 + 'px solid transparent';
+          piece.style.borderBottom = size + 'px solid ' + color;
+        }
+        container.appendChild(piece);
+      }
+      setTimeout(function() { container.innerHTML = ''; }, 5000);
+    })();
+
+    const countdownEl = document.getElementById('success-countdown');
+    const doneBtn = document.getElementById('done-btn');
+    const successMobile = document.getElementById('success-mobile');
+    let seconds = <%= config.SUCCESS_COUNTDOWN %>;
+
+    // Display masked mobile
+    successMobile.textContent = sessionStorage.getItem('maskedMobile') || '+968 ●●●● ●●●●';
+
+    // Generate QR code
+    try {
+      new QRCode(document.getElementById('qr-code'), {
+        text: 'https://outlook.office365.com/owa/',
+        width: 72,
+        height: 72,
+        colorDark: '#001429',
+        colorLight: '#ffffff',
+        correctLevel: QRCode.CorrectLevel.M
+      });
+    } catch(e) { console.warn('QR generation failed:', e); }
+
+    // Clear all session data immediately (security)
+    sessionStorage.clear();
+
+    function goHome() {
+      window.location.href = '/';
+    }
+
+    const interval = setInterval(() => {
+      seconds--;
+      countdownEl.textContent = `0:${String(seconds).padStart(2, '0')}`;
+      if (seconds <= 0) {
+        clearInterval(interval);
+        goHome();
+      }
+    }, 1000);
+
+    doneBtn.addEventListener('click', () => {
+      clearInterval(interval);
+      goHome();
+    });
+  })();
+</script>
+
+</body>
+</html>

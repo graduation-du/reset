@@ -1,0 +1,358 @@
+<%- include('partials/head') %>
+
+<style>
+  /* Modern Scroll Wheel Picker */
+  .wheel-container {
+    position: relative;
+    height: 200px;
+    overflow: hidden;
+  }
+  .wheel-container::before,
+  .wheel-container::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 70px;
+    z-index: 2;
+    pointer-events: none;
+  }
+  .wheel-container::before {
+    top: 0;
+    background: linear-gradient(to bottom, rgba(6,33,58,0.95), transparent);
+  }
+  .wheel-container::after {
+    bottom: 0;
+    background: linear-gradient(to top, rgba(6,33,58,0.95), transparent);
+  }
+  .wheel-highlight {
+    position: absolute;
+    top: 50%;
+    left: 4px;
+    right: 4px;
+    height: 48px;
+    transform: translateY(-50%);
+    border-top: 1px solid rgba(94, 212, 255, 0.3);
+    border-bottom: 1px solid rgba(94, 212, 255, 0.3);
+    background: rgba(94, 212, 255, 0.06);
+    z-index: 1;
+    pointer-events: none;
+    border-radius: 10px;
+  }
+  .wheel-scroll {
+    height: 100%;
+    overflow-y: scroll;
+    scroll-snap-type: y mandatory;
+    -webkit-overflow-scrolling: touch;
+    padding: 76px 0;
+  }
+  .wheel-scroll::-webkit-scrollbar { display: none; }
+  .wheel-scroll { scrollbar-width: none; }
+  .wheel-item {
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    scroll-snap-align: center;
+    font-size: 1.25rem;
+    color: rgba(198, 198, 198, 0.3);
+    transition: color 0.15s, transform 0.15s;
+    cursor: pointer;
+    user-select: none;
+  }
+  .wheel-item.active {
+    color: #ffffff;
+    font-weight: 700;
+    transform: scale(1.12);
+  }
+</style>
+
+<%- include('partials/navbar') %>
+<%- include('partials/background') %>
+<%- include('partials/overlays') %>
+
+<main class="relative z-10 flex flex-col items-center justify-center min-h-screen px-10 pt-28 pb-24" data-idle-enabled="true">
+  <div class="w-full max-w-3xl screen-transition">
+
+    <%- include('partials/progress', { step: 2 }) %>
+
+    <!-- Student Name Banner -->
+    <div id="student-greeting" class="hidden mb-5 glass-panel px-6 py-4 rounded-2xl border border-primary/20 flex items-center gap-4">
+      <div class="w-12 h-12 rounded-xl bg-primary/15 flex items-center justify-center flex-shrink-0">
+        <span class="material-symbols-outlined text-primary text-2xl">person</span>
+      </div>
+      <div class="text-left">
+        <p class="text-on-surface-variant text-sm uppercase tracking-widest font-label" data-i18n="shared.verifyAs">Verifying as</p>
+        <p id="student-name-text" class="text-white font-headline font-bold text-xl"></p>
+      </div>
+    </div>
+
+    <div class="glass-panel p-12 rounded-[2.5rem] shadow-[0_0_100px_rgba(0,0,0,0.5)] border-t border-white/10 relative overflow-hidden">
+      <div class="absolute -top-24 -left-24 w-48 h-48 bg-secondary/20 blur-3xl rounded-full"></div>
+
+      <div class="relative z-10 flex flex-col items-center text-center">
+        <div class="w-20 h-20 rounded-2xl bg-secondary/10 flex items-center justify-center mb-6">
+          <span class="material-symbols-outlined filled text-5xl text-secondary">calendar_month</span>
+        </div>
+
+        <h2 class="font-headline text-5xl font-bold text-white mb-3" data-i18n="dob.title">Enter Your Date of Birth</h2>
+        <p class="text-on-surface-variant text-xl mb-8" data-i18n="dob.subtitle">Scroll each column to select your date</p>
+
+        <!-- Modern Wheel Date Picker -->
+        <div class="w-full grid grid-cols-3 gap-3 mb-6">
+          <!-- Day Wheel -->
+          <div class="flex flex-col items-center">
+            <label class="text-sm font-label text-secondary uppercase tracking-widest mb-3 font-bold" data-i18n="dob.day">Day</label>
+            <div class="w-full glass-panel rounded-2xl border border-outline-variant/20 overflow-hidden">
+              <div class="wheel-container">
+                <div class="wheel-highlight"></div>
+                <div class="wheel-scroll" id="day-wheel" data-field="day">
+                  <% for (let i = 1; i <= 31; i++) { %>
+                    <div class="wheel-item font-headline" data-value="<%= i %>"><%= String(i).padStart(2, '0') %></div>
+                  <% } %>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Month Wheel -->
+          <div class="flex flex-col items-center">
+            <label class="text-sm font-label text-secondary uppercase tracking-widest mb-3 font-bold" data-i18n="dob.month">Month</label>
+            <div class="w-full glass-panel rounded-2xl border border-outline-variant/20 overflow-hidden">
+              <div class="wheel-container">
+                <div class="wheel-highlight"></div>
+                <div class="wheel-scroll" id="month-wheel" data-field="month">
+                  <% const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']; %>
+                  <% for (let i = 0; i < 12; i++) { %>
+                    <div class="wheel-item font-headline" data-value="<%= i + 1 %>"><%= months[i] %></div>
+                  <% } %>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Year Wheel -->
+          <div class="flex flex-col items-center">
+            <label class="text-sm font-label text-secondary uppercase tracking-widest mb-3 font-bold" data-i18n="dob.year">Year</label>
+            <div class="w-full glass-panel rounded-2xl border border-outline-variant/20 overflow-hidden">
+              <div class="wheel-container">
+                <div class="wheel-highlight"></div>
+                <div class="wheel-scroll" id="year-wheel" data-field="year">
+                  <% for (let y = 2010; y >= 1965; y--) { %>
+                    <div class="wheel-item font-headline" data-value="<%= y %>"><%= y %></div>
+                  <% } %>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Selected Date Display -->
+        <div id="dob-display" class="mb-6 glass-panel px-8 py-4 rounded-xl border border-secondary/20 text-on-surface font-headline font-semibold text-xl flex items-center gap-3 justify-center">
+          <span class="material-symbols-outlined text-secondary text-2xl">event</span>
+          <span id="dob-display-text" class="text-on-surface-variant/60" data-i18n="dob.select">Select your date</span>
+        </div>
+
+        <p id="dob-error" class="hidden mb-6 text-error text-lg text-left flex items-center gap-2 w-full">
+          <span class="material-symbols-outlined text-xl">error</span>
+          <span></span>
+        </p>
+
+        <!-- Status -->
+        <div id="dob-status" class="mb-7 flex items-center gap-3 text-lg text-on-surface-variant/60">
+          <span class="material-symbols-outlined text-xl">touch_app</span>
+          <span data-i18n="dob.scroll">Scroll each column to select</span>
+        </div>
+
+        <!-- Buttons -->
+        <div class="w-full flex flex-col gap-4">
+          <button id="dob-submit" class="ripple w-full py-6 rounded-2xl bg-gradient-to-br from-primary to-primary-container font-headline font-bold text-2xl text-on-primary transition-all hover:scale-[1.02] active:scale-95 shadow-[0_0_20px_rgba(2,230,0,0.3)] disabled:opacity-40 disabled:hover:scale-100 disabled:shadow-none flex items-center justify-center gap-4">
+            <span class="btn-text" data-i18n="dob.verify">Verify & Continue</span>
+            <span class="btn-spinner hidden"><svg class="animate-spin h-7 w-7" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg></span>
+            <span class="btn-loading-text hidden">Verifying…</span>
+            <span class="material-symbols-outlined btn-arrow text-2xl">arrow_forward</span>
+          </button>
+          <div class="flex gap-4">
+            <a href="/verify/student-id" class="ripple flex-1 py-5 rounded-2xl border border-outline-variant/30 glass-panel font-headline font-bold text-xl text-white text-center transition-all hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-3">
+              <span class="material-symbols-outlined text-2xl">arrow_back</span> <span data-i18n="onboard.back">Back</span>
+            </a>
+            <button id="cancel-btn" class="ripple flex-1 py-5 rounded-2xl border border-error-container/30 glass-panel font-headline font-bold text-xl text-error/80 text-center transition-all hover:scale-[1.02] active:scale-95">
+              <span data-i18n="sid.cancel">Cancel & Exit</span>
+            </button>
+          </div>
+        </div>
+
+        <p id="attempt-counter" class="hidden mt-5 text-on-surface-variant/60 text-base">
+          <span data-i18n="shared.attempts">Attempts remaining:</span> <span id="attempts-left">3</span>
+        </p>
+      </div>
+    </div>
+  </div>
+</main>
+
+<%- include('partials/footer') %>
+
+<script src="/js/idle-timeout.js"></script>
+<script src="/js/cancel.js"></script>
+<script src="/js/activity-log.js"></script>
+<script>
+  (function() {
+    const sn = sessionStorage.getItem('studentName');
+    if (sn) {
+      document.getElementById('student-name-text').textContent = sn;
+      document.getElementById('student-greeting').classList.remove('hidden');
+    }
+  })();
+</script>
+<script>
+  (function() {
+    const ITEM_HEIGHT = 48;
+    const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    const selected = { day: null, month: null, year: null };
+
+    const dayWheel = document.getElementById('day-wheel');
+    const monthWheel = document.getElementById('month-wheel');
+    const yearWheel = document.getElementById('year-wheel');
+    const displayText = document.getElementById('dob-display-text');
+    const submitBtn = document.getElementById('dob-submit');
+    const errorEl = document.getElementById('dob-error');
+    const statusEl = document.getElementById('dob-status');
+    const attemptCounter = document.getElementById('attempt-counter');
+    const attemptsLeft = document.getElementById('attempts-left');
+    const maxAttempts = <%= config.MAX_ATTEMPTS %>;
+    let failures = parseInt(sessionStorage.getItem('dobFailures') || '0');
+
+    function initWheel(scrollEl) {
+      const items = scrollEl.querySelectorAll('.wheel-item');
+      const field = scrollEl.dataset.field;
+
+      function updateActive() {
+        const scrollTop = scrollEl.scrollTop;
+        const centerIndex = Math.round(scrollTop / ITEM_HEIGHT);
+        items.forEach((item, i) => {
+          item.classList.toggle('active', i === centerIndex);
+        });
+        if (items[centerIndex]) {
+          selected[field] = items[centerIndex].dataset.value;
+        }
+        updateDisplay();
+        hideError();
+      }
+
+      let scrollTimeout;
+      scrollEl.addEventListener('scroll', () => {
+        clearTimeout(scrollTimeout);
+        scrollTimeout = setTimeout(() => {
+          const idx = Math.round(scrollEl.scrollTop / ITEM_HEIGHT);
+          scrollEl.scrollTo({ top: idx * ITEM_HEIGHT, behavior: 'smooth' });
+          setTimeout(updateActive, 150);
+        }, 100);
+        updateActive();
+      }, { passive: true });
+
+      items.forEach((item, i) => {
+        item.addEventListener('click', () => {
+          scrollEl.scrollTo({ top: i * ITEM_HEIGHT, behavior: 'smooth' });
+          setTimeout(updateActive, 250);
+        });
+      });
+
+      updateActive();
+    }
+
+    function updateDisplay() {
+      if (selected.day && selected.month && selected.year) {
+        displayText.textContent = `${String(selected.day).padStart(2,'0')} ${monthNames[selected.month - 1]} ${selected.year}`;
+        displayText.classList.remove('text-on-surface-variant/60');
+        displayText.classList.add('text-white');
+      }
+    }
+
+    function showError(msg) {
+      errorEl.classList.remove('hidden');
+      errorEl.querySelector('span:last-child').textContent = msg;
+    }
+    function hideError() {
+      errorEl.classList.add('hidden');
+    }
+
+    function setLoading(loading) {
+      submitBtn.disabled = loading;
+      submitBtn.querySelector('.btn-text').classList.toggle('hidden', loading);
+      submitBtn.querySelector('.btn-arrow').classList.toggle('hidden', loading);
+      submitBtn.querySelector('.btn-spinner').classList.toggle('hidden', !loading);
+      submitBtn.querySelector('.btn-loading-text').classList.toggle('hidden', !loading);
+    }
+
+    function lockSession() {
+      submitBtn.disabled = true;
+      showError('Too many failed attempts. Please visit the IT Help Desk for assistance.');
+      statusEl.innerHTML = '<span class="material-symbols-outlined text-base text-error">block</span> <span class="text-error">Session locked</span>';
+    }
+
+    submitBtn.addEventListener('click', async () => {
+      hideError();
+      if (!selected.day || !selected.month || !selected.year) {
+        showError('Please scroll to select a complete date of birth.');
+        return;
+      }
+
+      const dob = new Date(selected.year, selected.month - 1, selected.day);
+      if (dob >= new Date()) {
+        showError('Date of birth cannot be in the future.');
+        return;
+      }
+
+      setLoading(true);
+      statusEl.innerHTML = '<span class="material-symbols-outlined text-base animate-spin">sync</span> Verifying…';
+
+      try {
+        const resp = await fetch('/api/verify/dob', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ day: selected.day, month: selected.month, year: selected.year })
+        });
+        const data = await resp.json();
+
+        if (data.success) {
+          if (typeof AudioFeedback !== 'undefined') AudioFeedback.play('success');
+          statusEl.innerHTML = '<span class="material-symbols-outlined text-base text-primary">check_circle</span> <span class="text-primary">Verified</span>';
+          sessionStorage.setItem('dob', `${selected.day}/${selected.month}/${selected.year}`);
+          sessionStorage.removeItem('dobFailures');
+          if (typeof ActivityLog !== 'undefined') ActivityLog.addEntry('check_circle', 'log.dobVerified');
+          setTimeout(() => { window.location.href = '/verify/civil-id'; }, 500);
+        } else {
+          if (typeof AudioFeedback !== 'undefined') AudioFeedback.play('error');
+          failures++;
+          sessionStorage.setItem('dobFailures', failures);
+          attemptsLeft.textContent = maxAttempts - failures;
+          attemptCounter.classList.remove('hidden');
+          if (failures >= maxAttempts) {
+            lockSession();
+          } else {
+            showError(data.message);
+            statusEl.innerHTML = '<span class="material-symbols-outlined text-base text-error">error</span> <span class="text-error">Verification failed</span>';
+          }
+          setLoading(false);
+        }
+      } catch (e) {
+        showError('Service temporarily unavailable. Please try again.');
+        setLoading(false);
+      }
+    });
+
+    if (failures > 0) {
+      attemptsLeft.textContent = maxAttempts - failures;
+      attemptCounter.classList.remove('hidden');
+    }
+    if (failures >= maxAttempts) lockSession();
+
+    // Initialize all wheels
+    initWheel(dayWheel);
+    initWheel(monthWheel);
+    initWheel(yearWheel);
+  })();
+</script>
+
+</body>
+</html>

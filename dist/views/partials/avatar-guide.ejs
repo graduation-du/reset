@@ -1,0 +1,51 @@
+<!-- Animated Omani Avatar Guide -->
+<div id="avatar-guide" class="fixed bottom-24 z-[90] flex items-end gap-3 transition-all duration-700 pointer-events-none" style="left: 1.5rem; transform: translateX(-140%);">
+  <!-- Avatar Character -->
+  <div id="avatar-character" class="w-24 h-auto flex-shrink-0 pointer-events-auto cursor-pointer drop-shadow-lg" title="Assistant">
+    <img src="/images/avatar-omani.svg" alt="Omani Guide" class="w-full h-full" id="avatar-svg-img" />
+  </div>
+  <!-- Speech Bubble -->
+  <div id="avatar-bubble" class="glass-panel px-5 py-4 rounded-2xl rounded-bl-sm max-w-xs border border-primary/20 shadow-[0_0_30px_rgba(2,230,0,0.1)] pointer-events-auto relative opacity-0 transition-all duration-500" style="transform: scale(0.8) translateY(10px);">
+    <!-- Bubble tail -->
+    <div class="absolute -left-2 bottom-3 w-0 h-0" style="border-top: 8px solid transparent; border-bottom: 8px solid transparent; border-right: 10px solid rgba(19,43,69,0.6);"></div>
+    <p id="avatar-message" class="text-on-surface text-base font-body leading-relaxed"></p>
+    <!-- Dismiss button -->
+    <button id="avatar-dismiss" class="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-surface-container-highest/80 border border-outline-variant/30 flex items-center justify-center text-on-surface-variant hover:text-white hover:bg-error/60 transition-all" aria-label="Dismiss">
+      <span class="material-symbols-outlined text-sm" style="font-size: 14px;">close</span>
+    </button>
+  </div>
+</div>
+
+<!-- RTL + Light mode overrides for avatar -->
+<style>
+  [dir="rtl"] #avatar-guide {
+    left: auto !important;
+    right: 1.5rem;
+    flex-direction: row-reverse;
+    transform: translateX(140%);
+  }
+  [dir="rtl"] #avatar-guide.avatar-visible {
+    transform: translateX(0) !important;
+  }
+  [dir="rtl"] #avatar-bubble {
+    border-radius: 1rem 1rem 1rem 0.25rem;
+  }
+  [dir="rtl"] #avatar-bubble > div:first-child {
+    left: auto;
+    right: -8px;
+    border-right: none;
+    border-left: 10px solid rgba(19,43,69,0.6);
+  }
+  /* Light mode bubble */
+  html:not(.dark) #avatar-bubble {
+    background: rgba(255,255,255,0.85);
+    border-color: rgba(2,110,0,0.15);
+  }
+  html:not(.dark) #avatar-bubble > div:first-child {
+    border-right-color: rgba(255,255,255,0.85);
+  }
+  html:not(.dark) [dir="rtl"] #avatar-bubble > div:first-child {
+    border-left-color: rgba(255,255,255,0.85);
+    border-right-color: transparent;
+  }
+</style>

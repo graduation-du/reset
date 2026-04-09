@@ -1,0 +1,282 @@
+<%- include('partials/head') %>
+
+<style>
+  .otp-input:focus { box-shadow: 0 0 20px rgba(2, 230, 0, 0.3); border-color: #02e600; }
+  .otp-input.filled { border-color: rgba(2, 230, 0, 0.4); }
+  .otp-input.error { border-color: #ffb4ab !important; box-shadow: 0 0 20px rgba(255, 180, 171, 0.2) !important; }
+</style>
+
+<%- include('partials/navbar') %>
+<%- include('partials/background') %>
+<%- include('partials/overlays') %>
+
+<main class="relative z-10 flex flex-col items-center justify-center min-h-screen px-10 pt-28 pb-24" data-idle-enabled="true">
+  <div class="w-full max-w-3xl screen-transition">
+
+    <div class="glass-panel p-12 rounded-[2.5rem] shadow-[0_0_100px_rgba(0,0,0,0.5)] border-t border-white/10 relative overflow-hidden">
+      <div class="absolute -top-24 -right-24 w-48 h-48 bg-primary/20 blur-3xl rounded-full"></div>
+
+      <div class="relative z-10 flex flex-col items-center text-center">
+        <div class="w-20 h-20 rounded-2xl bg-primary/10 flex items-center justify-center mb-8">
+          <span class="material-symbols-outlined filled text-5xl text-primary">shield_lock</span>
+        </div>
+
+        <h2 class="font-headline text-5xl font-bold text-white mb-3">Enter the OTP Sent to Your Mobile</h2>
+        <p id="otp-subheading" class="text-on-surface-variant text-xl mb-10">
+          A 6-digit code was sent to <span id="masked-mobile" class="text-secondary font-semibold"></span>
+        </p>
+
+        <!-- OTP Boxes -->
+        <div class="flex gap-4 mb-8 justify-center" id="otp-container">
+          <input type="text" inputmode="numeric" maxlength="1" class="otp-input w-18 h-20 text-center text-3xl font-headline font-bold text-white bg-surface-container-highest/50 border-2 border-outline-variant/30 rounded-xl focus:outline-none transition-all" data-index="0" autocomplete="off" style="width:72px;height:80px" />
+          <input type="text" inputmode="numeric" maxlength="1" class="otp-input w-18 h-20 text-center text-3xl font-headline font-bold text-white bg-surface-container-highest/50 border-2 border-outline-variant/30 rounded-xl focus:outline-none transition-all" data-index="1" autocomplete="off" style="width:72px;height:80px" />
+          <input type="text" inputmode="numeric" maxlength="1" class="otp-input w-18 h-20 text-center text-3xl font-headline font-bold text-white bg-surface-container-highest/50 border-2 border-outline-variant/30 rounded-xl focus:outline-none transition-all" data-index="2" autocomplete="off" style="width:72px;height:80px" />
+          <input type="text" inputmode="numeric" maxlength="1" class="otp-input w-18 h-20 text-center text-3xl font-headline font-bold text-white bg-surface-container-highest/50 border-2 border-outline-variant/30 rounded-xl focus:outline-none transition-all" data-index="3" autocomplete="off" style="width:72px;height:80px" />
+          <input type="text" inputmode="numeric" maxlength="1" class="otp-input w-18 h-20 text-center text-3xl font-headline font-bold text-white bg-surface-container-highest/50 border-2 border-outline-variant/30 rounded-xl focus:outline-none transition-all" data-index="4" autocomplete="off" style="width:72px;height:80px" />
+          <input type="text" inputmode="numeric" maxlength="1" class="otp-input w-18 h-20 text-center text-3xl font-headline font-bold text-white bg-surface-container-highest/50 border-2 border-outline-variant/30 rounded-xl focus:outline-none transition-all" data-index="5" autocomplete="off" style="width:72px;height:80px" />
+        </div>
+
+        <!-- Timer & Resend -->
+        <div class="mb-8 flex flex-col items-center gap-3">
+          <div class="flex items-center gap-3 text-lg">
+            <span class="material-symbols-outlined text-xl text-secondary">timer</span>
+            <span id="otp-timer" class="text-secondary font-headline font-bold text-2xl">05:00</span>
+          </div>
+          <button id="resend-otp" disabled class="text-on-surface-variant/40 text-lg font-label underline underline-offset-4 disabled:cursor-not-allowed transition-colors hover:text-primary disabled:hover:text-on-surface-variant/40">
+            Resend OTP
+          </button>
+          <p id="resend-counter" class="text-on-surface-variant/40 text-base hidden">
+            Resends remaining: <span id="resends-left">3</span>
+          </p>
+        </div>
+
+        <p id="otp-error" class="hidden mb-6 text-error text-lg flex items-center gap-2">
+          <span class="material-symbols-outlined text-xl">error</span>
+          <span></span>
+        </p>
+
+        <!-- Buttons -->
+        <div class="w-full flex flex-col gap-4">
+          <button id="otp-submit" disabled class="w-full py-6 rounded-2xl bg-gradient-to-br from-primary to-primary-container font-headline font-bold text-2xl text-on-primary transition-all hover:scale-[1.02] active:scale-95 shadow-[0_0_20px_rgba(2,230,0,0.3)] disabled:opacity-40 disabled:hover:scale-100 disabled:shadow-none flex items-center justify-center gap-4">
+            <span class="btn-text">Verify OTP</span>
+            <span class="btn-spinner hidden"><svg class="animate-spin h-7 w-7" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg></span>
+            <span class="btn-loading-text hidden">Verifying…</span>
+            <span class="material-symbols-outlined btn-arrow text-2xl">arrow_forward</span>
+          </button>
+          <div class="flex gap-4">
+            <a href="/verify/mobile" class="flex-1 py-5 rounded-2xl border border-outline-variant/30 glass-panel font-headline font-bold text-xl text-white text-center transition-all hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-3">
+              <span class="material-symbols-outlined text-2xl">arrow_back</span> Back
+            </a>
+            <button id="cancel-btn" class="flex-1 py-5 rounded-2xl border border-error-container/30 glass-panel font-headline font-bold text-xl text-error/80 text-center transition-all hover:scale-[1.02] active:scale-95">
+              Cancel & Exit
+            </button>
+          </div>
+        </div>
+
+        <p id="attempt-counter" class="hidden mt-5 text-on-surface-variant/60 text-base">
+          Attempts remaining: <span id="attempts-left">3</span>
+        </p>
+      </div>
+    </div>
+  </div>
+</main>
+
+<%- include('partials/footer') %>
+
+<script src="/js/idle-timeout.js"></script>
+<script src="/js/cancel.js"></script>
+<script>
+  (function() {
+    const inputs = document.querySelectorAll('.otp-input');
+    const submitBtn = document.getElementById('otp-submit');
+    const errorEl = document.getElementById('otp-error');
+    const timerEl = document.getElementById('otp-timer');
+    const resendBtn = document.getElementById('resend-otp');
+    const resendCounter = document.getElementById('resend-counter');
+    const resendsLeft = document.getElementById('resends-left');
+    const maskedMobileEl = document.getElementById('masked-mobile');
+    const maxAttempts = <%= config.MAX_ATTEMPTS %>;
+    const otpExpiry = <%= config.OTP_EXPIRY %>;
+    const maxResends = <%= config.MAX_OTP_RESENDS %>;
+    let failures = 0;
+    let resends = 0;
+    let timerSeconds = otpExpiry;
+    let timerInterval;
+    let expired = false;
+
+    // Display masked mobile
+    maskedMobileEl.textContent = sessionStorage.getItem('maskedMobile') || '+968 ●●●● ●●●●';
+
+    // --- OTP Input Logic ---
+    inputs.forEach((input, idx) => {
+      input.addEventListener('input', (e) => {
+        const val = e.target.value.replace(/\D/g, '');
+        e.target.value = val.charAt(0) || '';
+        hideError();
+
+        if (val && idx < inputs.length - 1) {
+          inputs[idx + 1].focus();
+        }
+        input.classList.toggle('filled', !!val);
+        checkComplete();
+      });
+
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'Backspace' && !input.value && idx > 0) {
+          inputs[idx - 1].focus();
+          inputs[idx - 1].value = '';
+          inputs[idx - 1].classList.remove('filled');
+          checkComplete();
+        }
+      });
+
+      // Paste support
+      input.addEventListener('paste', (e) => {
+        e.preventDefault();
+        const paste = (e.clipboardData.getData('text') || '').replace(/\D/g, '').substring(0, 6);
+        paste.split('').forEach((ch, i) => {
+          if (inputs[i]) {
+            inputs[i].value = ch;
+            inputs[i].classList.add('filled');
+          }
+        });
+        if (paste.length > 0) inputs[Math.min(paste.length, 5)].focus();
+        checkComplete();
+      });
+    });
+
+    function getOtp() {
+      return Array.from(inputs).map(i => i.value).join('');
+    }
+
+    function checkComplete() {
+      const otp = getOtp();
+      submitBtn.disabled = otp.length < 6 || expired;
+    }
+
+    function showError(msg) {
+      errorEl.classList.remove('hidden');
+      errorEl.querySelector('span:last-child').textContent = msg;
+      inputs.forEach(i => i.classList.add('error'));
+    }
+    function hideError() {
+      errorEl.classList.add('hidden');
+      inputs.forEach(i => i.classList.remove('error'));
+    }
+
+    function setLoading(loading) {
+      submitBtn.disabled = loading;
+      inputs.forEach(i => i.disabled = loading);
+      submitBtn.querySelector('.btn-text').classList.toggle('hidden', loading);
+      submitBtn.querySelector('.btn-arrow').classList.toggle('hidden', loading);
+      submitBtn.querySelector('.btn-spinner').classList.toggle('hidden', !loading);
+      submitBtn.querySelector('.btn-loading-text').classList.toggle('hidden', !loading);
+    }
+
+    function lockSession() {
+      inputs.forEach(i => i.disabled = true);
+      submitBtn.disabled = true;
+      showError('Too many failed attempts. Please visit the IT Help Desk for assistance.');
+    }
+
+    // --- Timer ---
+    function startTimer() {
+      expired = false;
+      timerSeconds = otpExpiry;
+      inputs.forEach(i => { i.disabled = false; i.value = ''; i.classList.remove('filled', 'error'); });
+      resendBtn.disabled = true;
+      resendBtn.classList.remove('text-primary');
+      resendBtn.classList.add('text-on-surface-variant/40');
+      checkComplete();
+
+      clearInterval(timerInterval);
+      timerInterval = setInterval(() => {
+        timerSeconds--;
+        const m = String(Math.floor(timerSeconds / 60)).padStart(2, '0');
+        const s = String(timerSeconds % 60).padStart(2, '0');
+        timerEl.textContent = `${m}:${s}`;
+
+        if (timerSeconds <= 0) {
+          clearInterval(timerInterval);
+          expired = true;
+          submitBtn.disabled = true;
+          inputs.forEach(i => { i.disabled = true; i.classList.add('error'); });
+          showError('OTP expired. Please request a new code.');
+          resendBtn.disabled = resends >= maxResends;
+          if (resends < maxResends) {
+            resendBtn.classList.add('text-primary');
+            resendBtn.classList.remove('text-on-surface-variant/40');
+          }
+        }
+      }, 1000);
+    }
+
+    startTimer();
+
+    // --- Resend ---
+    resendBtn.addEventListener('click', async () => {
+      if (resends >= maxResends) return;
+      resends++;
+      resendsLeft.textContent = maxResends - resends;
+      resendCounter.classList.remove('hidden');
+
+      if (resends >= maxResends) {
+        resendBtn.disabled = true;
+        resendBtn.textContent = 'No more resends available';
+      }
+
+      hideError();
+      try {
+        await fetch('/api/resend-otp', { method: 'POST', headers: { 'Content-Type': 'application/json' } });
+      } catch (e) { /* silent */ }
+      startTimer();
+      inputs[0].focus();
+    });
+
+    // --- Submit ---
+    submitBtn.addEventListener('click', async () => {
+      hideError();
+      const otp = getOtp();
+      if (otp.length !== 6) return;
+
+      setLoading(true);
+
+      try {
+        const resp = await fetch('/api/verify/otp', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ otp })
+        });
+        const data = await resp.json();
+
+        if (data.success) {
+          clearInterval(timerInterval);
+          // Clear all session data for security
+          const maskedMobile = sessionStorage.getItem('maskedMobile');
+          sessionStorage.clear();
+          sessionStorage.setItem('maskedMobile', maskedMobile || '');
+          sessionStorage.setItem('resetComplete', 'true');
+          setTimeout(() => { window.location.href = '/success'; }, 500);
+        } else {
+          failures++;
+          document.getElementById('attempts-left').textContent = maxAttempts - failures;
+          document.getElementById('attempt-counter').classList.remove('hidden');
+          if (failures >= maxAttempts) {
+            lockSession();
+          } else {
+            showError(data.message);
+          }
+          setLoading(false);
+        }
+      } catch (e) {
+        showError('Service temporarily unavailable. Please try again.');
+        setLoading(false);
+      }
+    });
+
+    inputs[0].focus();
+  })();
+</script>
+
+</body>
+</html>

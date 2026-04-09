@@ -1,0 +1,65 @@
+<!-- Avatar Guide -->
+<%- include('avatar-guide') %>
+
+<!-- Idle Timeout Overlay (#11 — Countdown Ring) -->
+<div id="idle-overlay" class="fixed inset-0 z-[999] hidden items-center justify-center" style="background: rgba(0,20,41,0.95); backdrop-filter: blur(16px);">
+  <div class="glass-panel p-12 rounded-[2rem] border border-white/10 text-center max-w-lg mx-auto shadow-[0_0_80px_rgba(0,0,0,0.5)]">
+    <!-- Countdown Ring -->
+    <div class="countdown-ring mx-auto mb-6">
+      <svg viewBox="0 0 120 120" width="120" height="120">
+        <circle class="ring-bg" cx="60" cy="60" r="54" />
+        <circle class="ring-fg" id="idle-ring" cx="60" cy="60" r="54" />
+      </svg>
+      <div class="ring-number" id="idle-countdown">10</div>
+    </div>
+    <h2 class="font-headline text-3xl font-bold text-white mb-3" data-i18n="idle.title">Are you still there?</h2>
+    <p class="text-on-surface-variant text-lg mb-6">
+      <span data-i18n="idle.desc">Session resets in</span>
+      <span class="text-error font-headline font-bold" id="idle-countdown-text">10</span>
+      <span data-i18n="idle.seconds">seconds</span>
+    </p>
+    <button id="idle-dismiss" class="w-full py-5 rounded-2xl bg-gradient-to-br from-primary to-primary-container font-headline font-bold text-xl text-on-primary transition-all hover:scale-[1.02] active:scale-95 ripple" data-i18n="idle.dismiss">
+      I'm Still Here
+    </button>
+  </div>
+</div>
+
+<!-- Cancel Confirmation Modal -->
+<div id="cancel-modal" class="fixed inset-0 z-[998] hidden items-center justify-center" style="background: rgba(0,20,41,0.92); backdrop-filter: blur(10px);">
+  <div class="glass-panel p-10 rounded-[2rem] border border-white/10 text-center max-w-lg mx-auto shadow-[0_0_80px_rgba(0,0,0,0.5)]">
+    <span class="material-symbols-outlined text-6xl text-error mb-6 block">warning</span>
+    <h2 class="font-headline text-2xl font-bold text-white mb-3" data-i18n="shared.cancelTitle">Are you sure you want to cancel?</h2>
+    <p class="text-on-surface-variant text-lg mb-8" data-i18n="shared.cancelDesc">All progress will be lost.</p>
+    <div class="flex gap-4">
+      <button id="cancel-no" class="flex-1 py-4 rounded-2xl border border-outline-variant/30 glass-panel font-headline font-bold text-lg text-white transition-all hover:scale-[1.02] active:scale-95 ripple" data-i18n="shared.cancelNo">
+        No, Continue
+      </button>
+      <button id="cancel-yes" class="flex-1 py-4 rounded-2xl bg-error-container font-headline font-bold text-lg text-on-error-container transition-all hover:scale-[1.02] active:scale-95 ripple" data-i18n="shared.cancelYes">
+        Yes, Cancel
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Session Activity Log Panel (#9) -->
+<div id="activity-log-panel" class="hidden fixed bottom-16 right-4 z-[100] w-72">
+  <button id="activity-log-toggle" class="w-full flex items-center justify-between px-4 py-2.5 rounded-t-xl glass-panel border border-outline-variant/20 border-b-0 text-on-surface-variant text-xs font-label font-semibold uppercase tracking-widest hover:text-white transition-colors">
+    <span class="flex items-center gap-2">
+      <span class="material-symbols-outlined text-primary text-sm">checklist</span>
+      <span data-i18n="log.title">Activity Log</span>
+    </span>
+    <span class="material-symbols-outlined text-sm">expand_less</span>
+  </button>
+  <div class="glass-panel px-4 py-3 rounded-b-xl border border-outline-variant/20 border-t-0 max-h-48 overflow-y-auto activity-log-list"></div>
+</div>
+
+<script>
+(function() {
+  var logToggle = document.getElementById('activity-log-toggle');
+  if (logToggle) {
+    logToggle.addEventListener('click', function() {
+      this.nextElementSibling.classList.toggle('hidden');
+    });
+  }
+})();
+</script>

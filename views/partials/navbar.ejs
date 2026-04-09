@@ -1,0 +1,103 @@
+<!-- TopNavBar -->
+<nav class="fixed top-0 w-full z-50 flex justify-between items-center px-8 py-4 bg-gradient-to-r from-[#001429] via-[#132b45] to-[#001429] border-b border-white/5" role="banner">
+  <!-- Left: Logo + Branding -->
+  <div class="flex items-center gap-4">
+    <div class="w-14 h-14 rounded-2xl overflow-hidden border-2 border-primary/30 shadow-[0_0_20px_rgba(2,230,0,0.15)] flex-shrink-0 bg-white">
+      <img alt="Dhofar University Logo" class="w-full h-full object-contain" src="/images/du_logo.png" />
+    </div>
+    <div class="flex flex-col">
+      <span class="font-headline font-black text-xl text-white tracking-tight" data-i18n="nav.title">Dhofar University</span>
+      <span class="text-primary font-headline font-bold text-xs tracking-widest uppercase" data-i18n="nav.subtitle">Kiosk Experience</span>
+    </div>
+  </div>
+
+  <!-- Center: Live Clock (#6) -->
+  <div class="flex flex-col items-center">
+    <span id="live-clock" class="font-headline font-bold text-2xl text-white tabular-nums tracking-wide">--:--</span>
+    <span id="live-date" class="text-on-surface-variant/60 text-xs font-label tracking-wider uppercase">---</span>
+  </div>
+
+  <!-- Right: Controls -->
+  <div class="flex items-center gap-3">
+    <!-- Language Toggle (#1) -->
+    <button id="lang-toggle" class="flex items-center gap-2 px-4 py-3 rounded-xl glass-panel border border-outline-variant/20 text-on-surface-variant hover:text-white hover:border-primary/30 transition-all active:scale-95" title="Toggle Language" aria-label="Toggle Language">
+      <span class="material-symbols-outlined text-xl">translate</span>
+      <span class="text-base font-headline font-bold">عربي</span>
+    </button>
+    <!-- Theme Toggle (Light/Dark) -->
+    <button id="theme-toggle" class="flex items-center justify-center w-12 h-12 rounded-xl glass-panel border border-outline-variant/20 text-on-surface-variant hover:text-white hover:border-primary/30 transition-all active:scale-95" title="Toggle Light/Dark Mode" aria-label="Toggle Light/Dark Mode" data-i18n-aria="theme.toggle">
+      <span class="material-symbols-outlined text-xl">light_mode</span>
+    </button>
+    <!-- High Contrast (#3) -->
+    <button id="contrast-toggle" class="flex items-center justify-center w-12 h-12 rounded-xl glass-panel border border-outline-variant/20 text-on-surface-variant hover:text-white hover:border-secondary/30 transition-all active:scale-95" title="High Contrast Mode" aria-label="Toggle High Contrast">
+      <span class="material-symbols-outlined text-xl">contrast</span>
+    </button>
+    <!-- Audio Toggle (#10) -->
+    <button id="audio-toggle" class="flex items-center justify-center w-12 h-12 rounded-xl glass-panel border border-outline-variant/20 text-on-surface-variant hover:text-white hover:border-tertiary/30 transition-all active:scale-95" title="Toggle Audio" aria-label="Toggle Audio Feedback">
+      <span class="material-symbols-outlined text-xl">volume_up</span>
+    </button>
+  </div>
+</nav>
+
+<!-- Live Clock Script -->
+<script>
+(function() {
+  const clockEl = document.getElementById('live-clock');
+  const dateEl = document.getElementById('live-date');
+  function updateClock() {
+    const now = new Date();
+    clockEl.textContent = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
+    dateEl.textContent = now.toLocaleDateString(I18N.getLang() === 'ar' ? 'ar-OM' : 'en-US', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
+  }
+  updateClock();
+  setInterval(updateClock, 1000);
+
+  // Restore high contrast state
+  if (localStorage.getItem('du-hc') === 'true') {
+    document.documentElement.classList.add('high-contrast');
+  }
+  // Restore audio state
+  if (typeof AudioFeedback !== 'undefined' && !AudioFeedback.isEnabled()) {
+    const audioBtn = document.getElementById('audio-toggle');
+    if (audioBtn) audioBtn.querySelector('.material-symbols-outlined').textContent = 'volume_off';
+  }
+  // Restore lang toggle label
+  if (typeof I18N !== 'undefined') {
+    const langBtn = document.getElementById('lang-toggle');
+    if (langBtn) langBtn.querySelector('span:last-child').textContent = I18N.getLang() === 'ar' ? 'EN' : 'عربي';
+  }
+
+  // --- Button event listeners (moved from inline onclick for CSP compatibility) ---
+
+  // Language Toggle
+  var langToggle = document.getElementById('lang-toggle');
+  if (langToggle) {
+    langToggle.addEventListener('click', function() {
+      I18N.toggleLang();
+      langToggle.querySelector('span:last-child').textContent = I18N.getLang() === 'ar' ? 'EN' : 'عربي';
+      // Update avatar guide message on language change
+      if (typeof AvatarGuide !== 'undefined' && AvatarGuide.onLanguageChange) {
+        AvatarGuide.onLanguageChange();
+      }
+    });
+  }
+
+  // High Contrast Toggle
+  var contrastToggle = document.getElementById('contrast-toggle');
+  if (contrastToggle) {
+    contrastToggle.addEventListener('click', function() {
+      document.documentElement.classList.toggle('high-contrast');
+      localStorage.setItem('du-hc', document.documentElement.classList.contains('high-contrast'));
+    });
+  }
+
+  // Audio Toggle
+  var audioToggle = document.getElementById('audio-toggle');
+  if (audioToggle) {
+    audioToggle.addEventListener('click', function() {
+      var on = AudioFeedback.toggle();
+      audioToggle.querySelector('.material-symbols-outlined').textContent = on ? 'volume_up' : 'volume_off';
+    });
+  }
+})();
+</script>
