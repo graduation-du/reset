@@ -1,175 +1,194 @@
 /**
- * Avatar Guide Controller
- * Shows an animated Omani character with contextual speech bubbles per route.
- * Integrates with I18N for bilingual messages and triggers SVG animations.
+ * Avatar Guide Controller — Right-edge peeping mechanic
+ * States: hidden → peek (head visible) → expanded (full body + bubble) → retreat → peek
  */
 const AvatarGuide = (function () {
   'use strict';
 
   const STORAGE_KEY = 'du-avatar-hidden';
+  const PEEK_PX = 55;           // how many px of character to show when peeking
+  const EXPAND_OFFSET = 95;     // how far to slide in when fully expanded
+  const PEEK_DELAY = 1500;      // ms before first peek on page load
+  const AUTO_RETREAT_MS = 8000; // ms before auto-retreat from expanded
 
   // Route-based guide configuration
   var messages = {
     '/': {
       en: "Marhaba! Tap anywhere to start your password reset.",
       ar: "مرحباً! اضغط في أي مكان لبدء إعادة تعيين كلمة المرور.",
-      delay: 2500,
+      delay: 2000,
       anim: 'waving',
-      duration: 8000
     },
     '/onboarding': {
       en: "Get your Student Card, Civil ID, and phone ready!",
       ar: "جهّز بطاقة الطالب والهوية المدنية وهاتفك!",
-      delay: 1200,
+      delay: 1000,
       anim: 'pointing',
-      duration: 7000
     },
     '/verify/student-id': {
       en: "Enter the Student ID printed on your university card.",
       ar: "أدخل رقم الطالب المطبوع على بطاقتك الجامعية.",
       delay: 800,
       anim: 'pointing',
-      duration: 6000
     },
     '/verify/dob': {
       en: "Scroll the wheels to select your date of birth.",
       ar: "مرر العجلات لاختيار تاريخ ميلادك.",
       delay: 800,
       anim: 'talking',
-      duration: 6000
     },
     '/verify/civil-id': {
       en: "Type your national Civil ID number here.",
       ar: "اكتب رقم هويتك المدنية هنا.",
       delay: 800,
       anim: 'pointing',
-      duration: 6000
     },
     '/verify/mobile': {
       en: "Enter the mobile number registered with the university.",
       ar: "أدخل رقم الهاتف المسجّل لدى الجامعة.",
       delay: 800,
       anim: 'talking',
-      duration: 6000
     },
     '/verify/otp': {
       en: "Check your phone — an OTP code has been sent!",
       ar: "تحقق من هاتفك — تم إرسال رمز التحقق!",
       delay: 600,
       anim: 'waving',
-      duration: 6000
     },
     '/success': {
       en: "Mabrook! Your new password has been sent to your phone.",
       ar: "مبروك! تم إرسال كلمة المرور الجديدة إلى هاتفك.",
       delay: 1000,
       anim: 'celebrating',
-      duration: 10000
     }
   };
 
+  // State: 'hidden' | 'peek' | 'expanded'
+  var state = 'hidden';
   var guideEl, bubbleEl, messageEl, characterEl, svgImg, dismissBtn;
-  var hideTimer = null;
-  var isVisible = false;
+  var retreatTimer = null;
+  var isRtl = false;
+  var firstVisit = true;
 
   function init() {
-    guideEl = document.getElementById('avatar-guide');
-    bubbleEl = document.getElementById('avatar-bubble');
-    messageEl = document.getElementById('avatar-message');
+    guideEl     = document.getElementById('avatar-guide');
+    bubbleEl    = document.getElementById('avatar-bubble');
+    messageEl   = document.getElementById('avatar-message');
     characterEl = document.getElementById('avatar-character');
-    svgImg = document.getElementById('avatar-svg-img');
-    dismissBtn = document.getElementById('avatar-dismiss');
+    svgImg      = document.getElementById('avatar-svg-img');
+    dismissBtn  = document.getElementById('avatar-dismiss');
 
     if (!guideEl || !bubbleEl || !messageEl) return;
-
-    // If user has dismissed permanently, don't show
     if (localStorage.getItem(STORAGE_KEY) === 'true') return;
 
-    // Dismiss button hides the current bubble
+    isRtl = document.documentElement.dir === 'rtl';
+
+    // Set smooth transition
+    guideEl.style.transition = 'transform 0.6s cubic-bezier(0.22, 1, 0.36, 1)';
+
+    // Dismiss button hides bubble, retreats to peek
     if (dismissBtn) {
       dismissBtn.addEventListener('click', function (e) {
         e.stopPropagation();
-        hide();
+        retreat();
       });
     }
 
-    // Tap on character toggles bubble
+    // Tap on character: peek → expand, expanded → retreat
     if (characterEl) {
       characterEl.addEventListener('click', function () {
-        if (isVisible) {
-          hide();
-        } else {
-          showForRoute();
+        if (state === 'peek') {
+          expand();
+        } else if (state === 'expanded') {
+          retreat();
         }
       });
     }
 
-    // Show guide for current route
-    showForRoute();
+    // First visit: auto-peek then auto-expand with message
+    var route = window.location.pathname;
+    var msg = messages[route];
+    if (msg) {
+      setTimeout(function () {
+        peek();
+        // On first visit, auto-expand after a beat
+        if (firstVisit) {
+          setTimeout(function () { expand(); }, 1200);
+          firstVisit = false;
+        }
+      }, msg.delay || PEEK_DELAY);
+    }
   }
 
-  function showForRoute() {
+  /** Show just the head peeking from the edge */
+  function peek() {
+    if (!guideEl) return;
+    clearTimeout(retreatTimer);
+    hideBubble();
+    clearAnimationClasses();
+
+    var tx = isRtl ? (PEEK_PX) + 'px' : '-' + PEEK_PX + 'px';
+    guideEl.style.transform = 'translateX(' + tx + ')';
+    guideEl.classList.add('avatar-peek');
+    guideEl.classList.remove('avatar-expanded');
+    state = 'peek';
+  }
+
+  /** Fully slide in and show the speech bubble */
+  function expand() {
+    if (!guideEl) return;
+    clearTimeout(retreatTimer);
+
     var route = window.location.pathname;
     var msg = messages[route];
     if (!msg) return;
 
-    setTimeout(function () {
-      show(msg);
-    }, msg.delay);
-  }
-
-  function show(msg) {
-    if (!guideEl || !messageEl || !bubbleEl) return;
-
     var lang = (typeof I18N !== 'undefined') ? I18N.getLang() : 'en';
     messageEl.textContent = msg[lang] || msg.en;
 
-    // Set SVG animation class
+    // Apply animation class to SVG
     clearAnimationClasses();
     if (svgImg && msg.anim) {
       svgImg.classList.add('avatar-' + msg.anim);
     }
 
-    // Slide avatar in
-    guideEl.style.transform = 'translateX(0)';
-    guideEl.classList.add('avatar-visible');
-    isVisible = true;
+    var tx = isRtl ? (EXPAND_OFFSET) + 'px' : '-' + EXPAND_OFFSET + 'px';
+    guideEl.style.transform = 'translateX(' + tx + ')';
+    guideEl.classList.add('avatar-expanded');
+    guideEl.classList.remove('avatar-peek');
+    state = 'expanded';
 
-    // Fade in bubble after character appears
+    // Show bubble after slide-in settles
     setTimeout(function () {
-      bubbleEl.style.opacity = '1';
-      bubbleEl.style.transform = 'scale(1) translateY(0)';
-    }, 400);
+      showBubble();
+    }, 350);
 
-    // Auto-hide after duration
-    clearTimeout(hideTimer);
-    if (msg.duration) {
-      hideTimer = setTimeout(function () {
-        hideBubble();
-      }, msg.duration);
-    }
+    // Auto-retreat after duration
+    retreatTimer = setTimeout(function () {
+      retreat();
+    }, AUTO_RETREAT_MS);
+  }
+
+  /** Hide bubble and slide back to peek state */
+  function retreat() {
+    clearTimeout(retreatTimer);
+    hideBubble();
+    setTimeout(function () {
+      peek();
+    }, 300);
+  }
+
+  function showBubble() {
+    if (!bubbleEl) return;
+    bubbleEl.style.opacity = '1';
+    bubbleEl.style.transform = 'scale(1) translateX(0)';
   }
 
   function hideBubble() {
     if (!bubbleEl) return;
     bubbleEl.style.opacity = '0';
-    bubbleEl.style.transform = 'scale(0.8) translateY(10px)';
+    bubbleEl.style.transform = 'scale(0.8) translateX(20px)';
     clearAnimationClasses();
-  }
-
-  function hide() {
-    if (!guideEl) return;
-    clearTimeout(hideTimer);
-    bubbleEl.style.opacity = '0';
-    bubbleEl.style.transform = 'scale(0.8) translateY(10px)';
-
-    setTimeout(function () {
-      var isRtl = document.documentElement.dir === 'rtl';
-      guideEl.style.transform = isRtl ? 'translateX(140%)' : 'translateX(-140%)';
-      guideEl.classList.remove('avatar-visible');
-      isVisible = false;
-      clearAnimationClasses();
-    }, 300);
   }
 
   function clearAnimationClasses() {
@@ -177,17 +196,24 @@ const AvatarGuide = (function () {
     svgImg.classList.remove('avatar-waving', 'avatar-pointing', 'avatar-celebrating', 'avatar-talking');
   }
 
-  // Re-show on language change (update message text)
   function onLanguageChange() {
-    if (!isVisible) return;
-    var route = window.location.pathname;
-    var msg = messages[route];
-    if (!msg || !messageEl) return;
-    var lang = (typeof I18N !== 'undefined') ? I18N.getLang() : 'en';
-    messageEl.textContent = msg[lang] || msg.en;
+    isRtl = document.documentElement.dir === 'rtl';
+    if (state === 'expanded') {
+      var route = window.location.pathname;
+      var msg = messages[route];
+      if (msg && messageEl) {
+        var lang = (typeof I18N !== 'undefined') ? I18N.getLang() : 'en';
+        messageEl.textContent = msg[lang] || msg.en;
+      }
+      // Re-apply correct direction offset
+      var tx = isRtl ? (EXPAND_OFFSET) + 'px' : '-' + EXPAND_OFFSET + 'px';
+      guideEl.style.transform = 'translateX(' + tx + ')';
+    } else if (state === 'peek') {
+      var tx2 = isRtl ? (PEEK_PX) + 'px' : '-' + PEEK_PX + 'px';
+      guideEl.style.transform = 'translateX(' + tx2 + ')';
+    }
   }
 
-  // Initialize on DOM ready
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);
   } else {
@@ -195,8 +221,9 @@ const AvatarGuide = (function () {
   }
 
   return {
-    show: showForRoute,
-    hide: hide,
+    show: expand,
+    hide: retreat,
+    peek: peek,
     onLanguageChange: onLanguageChange
   };
 })();

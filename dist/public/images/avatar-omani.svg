@@ -1,261 +1,236 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 320" width="200" height="320">
+﻿<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 280" width="200" height="280">
   <defs>
-    <!-- Skin gradient -->
     <linearGradient id="skinGrad" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#D4A574"/>
-      <stop offset="100%" stop-color="#C4956A"/>
+      <stop offset="0%" stop-color="#EDCAAA"/>
+      <stop offset="100%" stop-color="#DEB896"/>
     </linearGradient>
-    <!-- Kumma (cap) pattern gradient -->
-    <linearGradient id="kummaGrad" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#F5F0E8"/>
-      <stop offset="40%" stop-color="#EDE6D6"/>
-      <stop offset="100%" stop-color="#E8DFC8"/>
-    </linearGradient>
-    <!-- Dishdasha gradient -->
     <linearGradient id="dishdashaGrad" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0%" stop-color="#FFFFFF"/>
-      <stop offset="100%" stop-color="#F0EDE6"/>
+      <stop offset="100%" stop-color="#F5F2ED"/>
     </linearGradient>
-    <!-- Shadow -->
+    <linearGradient id="kummaGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#FBF8F3"/>
+      <stop offset="100%" stop-color="#F0EBE0"/>
+    </linearGradient>
     <radialGradient id="shadowGrad" cx="0.5" cy="0.5" r="0.5">
-      <stop offset="0%" stop-color="rgba(0,0,0,0.15)"/>
+      <stop offset="0%" stop-color="rgba(0,0,0,0.12)"/>
       <stop offset="100%" stop-color="rgba(0,0,0,0)"/>
     </radialGradient>
-    <!-- Subtle face shadow -->
-    <linearGradient id="faceShadow" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="rgba(0,0,0,0)"/>
-      <stop offset="100%" stop-color="rgba(0,0,0,0.06)"/>
-    </linearGradient>
+    <!-- Embroidery pattern tile -->
+    <pattern id="kummaPattern" x="0" y="0" width="28" height="20" patternUnits="userSpaceOnUse">
+      <!-- Floral/geometric motif in dark brown -->
+      <rect width="28" height="20" fill="none"/>
+      <!-- Center diamond flower -->
+      <path d="M14 3 L17 10 L14 17 L11 10 Z" fill="#6B2D0F" opacity="0.85"/>
+      <circle cx="14" cy="10" r="2.5" fill="#8B3D1F" opacity="0.7"/>
+      <circle cx="14" cy="10" r="1" fill="#6B2D0F"/>
+      <!-- Top/bottom petals -->
+      <path d="M14 2 Q16 5 14 8 Q12 5 14 2Z" fill="#7B3315" opacity="0.6"/>
+      <path d="M14 12 Q16 15 14 18 Q12 15 14 12Z" fill="#7B3315" opacity="0.6"/>
+      <!-- Side petals -->
+      <path d="M8 10 Q11 8 14 10 Q11 12 8 10Z" fill="#7B3315" opacity="0.5"/>
+      <path d="M20 10 Q17 8 14 10 Q17 12 20 10Z" fill="#7B3315" opacity="0.5"/>
+      <!-- Corner dots -->
+      <circle cx="2" cy="3" r="1.5" fill="#6B2D0F" opacity="0.4"/>
+      <circle cx="26" cy="3" r="1.5" fill="#6B2D0F" opacity="0.4"/>
+      <circle cx="2" cy="17" r="1.5" fill="#6B2D0F" opacity="0.4"/>
+      <circle cx="26" cy="17" r="1.5" fill="#6B2D0F" opacity="0.4"/>
+      <!-- Connecting vine lines -->
+      <path d="M4 10 Q7 6 10 10" fill="none" stroke="#7B3315" stroke-width="0.6" opacity="0.4"/>
+      <path d="M18 10 Q21 6 24 10" fill="none" stroke="#7B3315" stroke-width="0.6" opacity="0.4"/>
+    </pattern>
   </defs>
 
-  <!-- === BODY GROUP (for wave/idle animation via CSS) === -->
-  <g id="avatar-body">
-    <!-- Ground shadow -->
-    <ellipse cx="100" cy="312" rx="55" ry="8" fill="url(#shadowGrad)"/>
+  <!-- Ground shadow -->
+  <ellipse cx="100" cy="275" rx="55" ry="6" fill="url(#shadowGrad)"/>
 
-    <!-- === DISHDASHA (traditional white robe) === -->
-    <g id="avatar-dishdasha">
-      <!-- Main body -->
-      <path d="M68 165 C65 180 58 240 55 295 Q55 310 100 310 Q145 310 145 295 C142 240 135 180 132 165 Z" fill="url(#dishdashaGrad)" stroke="#E0D8C8" stroke-width="0.5"/>
-      <!-- Collar / neckline detail -->
-      <path d="M82 162 Q100 175 118 162" fill="none" stroke="#DDD5C5" stroke-width="1.2" stroke-linecap="round"/>
-      <!-- Center seam line -->
-      <line x1="100" y1="172" x2="100" y2="300" stroke="#E8E0D0" stroke-width="0.6" stroke-dasharray="4,6"/>
-      <!-- Tassel (furakha) at neckline -->
-      <line x1="100" y1="168" x2="100" y2="188" stroke="#C8B898" stroke-width="1" stroke-linecap="round"/>
-      <circle cx="100" cy="189" r="2" fill="#C8B898"/>
-    </g>
-
-    <!-- === LEFT ARM === -->
-    <g id="avatar-arm-left">
-      <path d="M68 170 C55 185 42 210 38 235 Q36 242 40 244 Q44 246 46 240 C50 218 58 198 68 182" fill="url(#dishdashaGrad)" stroke="#E0D8C8" stroke-width="0.5"/>
-      <!-- Left hand -->
-      <ellipse cx="39" cy="242" rx="8" ry="10" fill="url(#skinGrad)" transform="rotate(-10,39,242)"/>
-      <!-- Fingers -->
-      <path d="M33 236 Q30 232 32 230" fill="none" stroke="#C4956A" stroke-width="1.5" stroke-linecap="round"/>
-      <path d="M35 234 Q33 229 35 227" fill="none" stroke="#C4956A" stroke-width="1.5" stroke-linecap="round"/>
-    </g>
-
-    <!-- === RIGHT ARM (will animate for wave) === -->
-    <g id="avatar-arm-right" transform-origin="132 170">
-      <path d="M132 170 C145 185 158 210 162 235 Q164 242 160 244 Q156 246 154 240 C150 218 142 198 132 182" fill="url(#dishdashaGrad)" stroke="#E0D8C8" stroke-width="0.5"/>
-      <!-- Right hand -->
-      <ellipse cx="161" cy="242" rx="8" ry="10" fill="url(#skinGrad)" transform="rotate(10,161,242)"/>
-      <!-- Fingers -->
-      <path d="M167 236 Q170 232 168 230" fill="none" stroke="#C4956A" stroke-width="1.5" stroke-linecap="round"/>
-      <path d="M165 234 Q167 229 165 227" fill="none" stroke="#C4956A" stroke-width="1.5" stroke-linecap="round"/>
-    </g>
+  <!-- === DISHDASHA (white robe) === -->
+  <g id="avatar-dishdasha">
+    <path d="M65 155 C62 170 56 215 52 260 Q52 275 100 275 Q148 275 148 260 C144 215 138 170 135 155 Z" fill="url(#dishdashaGrad)" stroke="#E5DDD0" stroke-width="0.6"/>
+    <!-- Collar neckline -->
+    <path d="M82 152 Q100 165 118 152" fill="none" stroke="#DDD5C5" stroke-width="1"/>
+    <!-- Center seam line (maroon) -->
+    <line x1="100" y1="160" x2="100" y2="268" stroke="#7B3315" stroke-width="1.2" opacity="0.7"/>
+    <!-- Furakha / tassel cord (maroon, prominent) -->
+    <line x1="100" y1="155" x2="100" y2="195" stroke="#7B3315" stroke-width="1.8" stroke-linecap="round"/>
+    <circle cx="100" cy="196" r="2.5" fill="#7B3315"/>
+    <!-- Tassel fringe -->
+    <line x1="98" y1="196" x2="97" y2="204" stroke="#7B3315" stroke-width="0.8" stroke-linecap="round"/>
+    <line x1="100" y1="198" x2="100" y2="206" stroke="#7B3315" stroke-width="0.8" stroke-linecap="round"/>
+    <line x1="102" y1="196" x2="103" y2="204" stroke="#7B3315" stroke-width="0.8" stroke-linecap="round"/>
+    <!-- Collar buttons -->
+    <circle cx="100" cy="158" r="1.2" fill="#DDD5C5"/>
   </g>
 
-  <!-- === HEAD GROUP === -->
+  <!-- === LEFT ARM === -->
+  <g id="avatar-arm-left">
+    <path d="M65 160 C52 178 40 200 36 225 Q34 232 38 234 Q42 236 44 230 C48 210 56 190 65 172" fill="url(#dishdashaGrad)" stroke="#E5DDD0" stroke-width="0.5"/>
+    <ellipse cx="37" cy="232" rx="7" ry="9" fill="url(#skinGrad)" transform="rotate(-10,37,232)"/>
+  </g>
+
+  <!-- === RIGHT ARM (animates for wave) === -->
+  <g id="avatar-arm-right" transform-origin="135 160">
+    <path d="M135 160 C148 178 160 200 164 225 Q166 232 162 234 Q158 236 156 230 C152 210 144 190 135 172" fill="url(#dishdashaGrad)" stroke="#E5DDD0" stroke-width="0.5"/>
+    <ellipse cx="163" cy="232" rx="7" ry="9" fill="url(#skinGrad)" transform="rotate(10,163,232)"/>
+  </g>
+
+  <!-- === HEAD === -->
   <g id="avatar-head">
     <!-- Neck -->
-    <rect x="90" y="148" width="20" height="22" rx="4" fill="url(#skinGrad)"/>
+    <rect x="90" y="138" width="20" height="20" rx="5" fill="url(#skinGrad)"/>
 
-    <!-- === FACE === -->
-    <g id="avatar-face">
-      <!-- Head shape -->
-      <ellipse cx="100" cy="108" rx="48" ry="55" fill="url(#skinGrad)"/>
-      <!-- Face shadow overlay -->
-      <ellipse cx="100" cy="108" rx="48" ry="55" fill="url(#faceShadow)"/>
+    <!-- === HAIR (black, visible on sides under kumma) === -->
+    <path d="M56 90 Q58 72 75 65 Q100 55 125 65 Q142 72 144 90" fill="#1A1A1A" opacity="0.95"/>
+    <!-- Hair on sides -->
+    <path d="M54 85 Q53 95 55 108" fill="none" stroke="#1A1A1A" stroke-width="6" stroke-linecap="round"/>
+    <path d="M146 85 Q147 95 145 108" fill="none" stroke="#1A1A1A" stroke-width="6" stroke-linecap="round"/>
+    <!-- Sideburns -->
+    <path d="M56 105 Q55 118 58 128" fill="none" stroke="#1A1A1A" stroke-width="4" stroke-linecap="round"/>
+    <path d="M144 105 Q145 118 142 128" fill="none" stroke="#1A1A1A" stroke-width="4" stroke-linecap="round"/>
 
-      <!-- Ears -->
-      <ellipse cx="53" cy="110" rx="7" ry="10" fill="#C4956A"/>
-      <ellipse cx="53" cy="110" rx="4" ry="7" fill="#B8876A"/>
-      <ellipse cx="147" cy="110" rx="7" ry="10" fill="#C4956A"/>
-      <ellipse cx="147" cy="110" rx="4" ry="7" fill="#B8876A"/>
+    <!-- Face shape -->
+    <ellipse cx="100" cy="105" rx="45" ry="50" fill="url(#skinGrad)"/>
 
-      <!-- Hair hint (dark, peeking from under kumma) -->
-      <path d="M60 82 Q65 75 80 72 Q100 68 120 72 Q135 75 140 82" fill="none" stroke="#2C1810" stroke-width="3" stroke-linecap="round" opacity="0.3"/>
+    <!-- Ears -->
+    <ellipse cx="56" cy="105" rx="6" ry="9" fill="#DEB896"/>
+    <ellipse cx="56" cy="105" rx="3.5" ry="6" fill="#D4A886"/>
+    <ellipse cx="144" cy="105" rx="6" ry="9" fill="#DEB896"/>
+    <ellipse cx="144" cy="105" rx="3.5" ry="6" fill="#D4A886"/>
 
-      <!-- === EYEBROWS === -->
-      <path d="M74 92 Q82 86 92 90" fill="none" stroke="#3D2B1F" stroke-width="2.5" stroke-linecap="round"/>
-      <path d="M108 90 Q118 86 126 92" fill="none" stroke="#3D2B1F" stroke-width="2.5" stroke-linecap="round"/>
+    <!-- === EYEBROWS (thick, dark) === -->
+    <path d="M72 86 Q82 80 92 84" fill="none" stroke="#1A1A1A" stroke-width="2.8" stroke-linecap="round"/>
+    <path d="M108 84 Q118 80 128 86" fill="none" stroke="#1A1A1A" stroke-width="2.8" stroke-linecap="round"/>
 
-      <!-- === EYES === -->
-      <g id="avatar-eyes">
-        <!-- Left eye white -->
-        <ellipse cx="83" cy="100" rx="10" ry="8" fill="white"/>
-        <!-- Left iris -->
-        <circle cx="84" cy="100" r="5" fill="#3D2B1F"/>
-        <!-- Left pupil -->
-        <circle cx="85" cy="99" r="2.5" fill="#1A0F09"/>
-        <!-- Left eye shine -->
-        <circle cx="86" cy="97" r="1.8" fill="white" opacity="0.9"/>
-        <!-- Left eye bottom lid -->
-        <path d="M73 102 Q83 110 93 102" fill="none" stroke="#C4956A" stroke-width="0.8"/>
+    <!-- === EYES (larger, friendly cartoon style) === -->
+    <g id="avatar-eyes">
+      <!-- Left eye -->
+      <ellipse cx="82" cy="96" rx="11" ry="10" fill="white"/>
+      <ellipse cx="82" cy="96" rx="11" ry="10" fill="none" stroke="#DEB896" stroke-width="0.5"/>
+      <circle cx="83" cy="96" r="6" fill="#5C3A1E"/>
+      <circle cx="84" cy="95" r="3" fill="#1A0F09"/>
+      <circle cx="86" cy="93" r="2" fill="white" opacity="0.9"/>
+      <circle cx="81" cy="97" r="1" fill="white" opacity="0.5"/>
+      <!-- Upper eyelid line -->
+      <path d="M71 92 Q82 86 93 92" fill="none" stroke="#1A1A1A" stroke-width="1.5" stroke-linecap="round"/>
 
-        <!-- Right eye white -->
-        <ellipse cx="117" cy="100" rx="10" ry="8" fill="white"/>
-        <!-- Right iris -->
-        <circle cx="116" cy="100" r="5" fill="#3D2B1F"/>
-        <!-- Right pupil -->
-        <circle cx="115" cy="99" r="2.5" fill="#1A0F09"/>
-        <!-- Right eye shine -->
-        <circle cx="114" cy="97" r="1.8" fill="white" opacity="0.9"/>
-        <!-- Right eye bottom lid -->
-        <path d="M107 102 Q117 110 127 102" fill="none" stroke="#C4956A" stroke-width="0.8"/>
-      </g>
-
-      <!-- Eyelashes (subtle) -->
-      <path d="M73 96 L71 94" stroke="#3D2B1F" stroke-width="1" stroke-linecap="round" opacity="0.4"/>
-      <path d="M93 96 L95 94" stroke="#3D2B1F" stroke-width="1" stroke-linecap="round" opacity="0.4"/>
-      <path d="M107 96 L105 94" stroke="#3D2B1F" stroke-width="1" stroke-linecap="round" opacity="0.4"/>
-      <path d="M127 96 L129 94" stroke="#3D2B1F" stroke-width="1" stroke-linecap="round" opacity="0.4"/>
-
-      <!-- === NOSE === -->
-      <path d="M97 106 Q100 118 103 106" fill="none" stroke="#B8876A" stroke-width="1.5" stroke-linecap="round"/>
-      <!-- Nostrils -->
-      <circle cx="96" cy="112" r="1.2" fill="#B8876A" opacity="0.5"/>
-      <circle cx="104" cy="112" r="1.2" fill="#B8876A" opacity="0.5"/>
-
-      <!-- === MOUTH (friendly smile) === -->
-      <g id="avatar-mouth">
-        <path d="M88 124 Q100 136 112 124" fill="none" stroke="#8B5E3C" stroke-width="2" stroke-linecap="round"/>
-        <!-- Upper lip detail -->
-        <path d="M92 124 Q96 122 100 123 Q104 122 108 124" fill="none" stroke="#A07050" stroke-width="0.8" stroke-linecap="round"/>
-      </g>
-
-      <!-- Subtle cheek blush -->
-      <ellipse cx="72" cy="116" rx="8" ry="5" fill="#E8A090" opacity="0.25"/>
-      <ellipse cx="128" cy="116" rx="8" ry="5" fill="#E8A090" opacity="0.25"/>
-
-      <!-- Light mustache hint -->
-      <path d="M90 120 Q100 118 110 120" fill="none" stroke="#5C3D2E" stroke-width="1.2" stroke-linecap="round" opacity="0.35"/>
+      <!-- Right eye -->
+      <ellipse cx="118" cy="96" rx="11" ry="10" fill="white"/>
+      <ellipse cx="118" cy="96" rx="11" ry="10" fill="none" stroke="#DEB896" stroke-width="0.5"/>
+      <circle cx="117" cy="96" r="6" fill="#5C3A1E"/>
+      <circle cx="116" cy="95" r="3" fill="#1A0F09"/>
+      <circle cx="114" cy="93" r="2" fill="white" opacity="0.9"/>
+      <circle cx="119" cy="97" r="1" fill="white" opacity="0.5"/>
+      <!-- Upper eyelid line -->
+      <path d="M107 92 Q118 86 129 92" fill="none" stroke="#1A1A1A" stroke-width="1.5" stroke-linecap="round"/>
     </g>
 
-    <!-- === KUMMA (Traditional Omani cap) === -->
+    <!-- === NOSE === -->
+    <path d="M97 103 Q100 114 103 103" fill="none" stroke="#C4986A" stroke-width="1.5" stroke-linecap="round"/>
+    <circle cx="96" cy="109" r="1.2" fill="#C4986A" opacity="0.4"/>
+    <circle cx="104" cy="109" r="1.2" fill="#C4986A" opacity="0.4"/>
+
+    <!-- === MOUTH (warm smile, visible through beard) === -->
+    <g id="avatar-mouth">
+      <path d="M90 122 Q100 130 110 122" fill="none" stroke="#C4704A" stroke-width="1.8" stroke-linecap="round"/>
+      <!-- Teeth hint -->
+      <path d="M93 122 Q100 127 107 122" fill="white" opacity="0.7"/>
+    </g>
+
+    <!-- Cheek blush -->
+    <ellipse cx="68" cy="112" rx="8" ry="5" fill="#E8A090" opacity="0.2"/>
+    <ellipse cx="132" cy="112" rx="8" ry="5" fill="#E8A090" opacity="0.2"/>
+
+    <!-- === BEARD (full, black, well-defined) === -->
+    <g id="avatar-beard">
+      <!-- Mustache -->
+      <path d="M86 117 Q93 114 100 116 Q107 114 114 117" fill="#1A1A1A" opacity="0.9"/>
+      <path d="M87 118 Q93 121 100 119 Q107 121 113 118" fill="#1A1A1A" opacity="0.85"/>
+      <!-- Beard â€” full coverage -->
+      <path d="M62 115 Q60 130 65 145 Q75 158 100 162 Q125 158 135 145 Q140 130 138 115" 
+            fill="none" stroke="#1A1A1A" stroke-width="0" />
+      <path d="M62 115 Q60 130 65 145 Q75 158 100 162 Q125 158 135 145 Q140 130 138 115 Q130 108 118 118 Q100 130 82 118 Q70 108 62 115Z" 
+            fill="#1A1A1A" opacity="0.92"/>
+      <!-- Beard texture lines -->
+      <path d="M75 130 Q80 145 90 152" fill="none" stroke="#2A2A2A" stroke-width="0.5" opacity="0.3"/>
+      <path d="M85 128 Q90 142 100 150" fill="none" stroke="#2A2A2A" stroke-width="0.5" opacity="0.3"/>
+      <path d="M100 128 Q100 142 100 155" fill="none" stroke="#2A2A2A" stroke-width="0.5" opacity="0.3"/>
+      <path d="M115 128 Q110 142 100 150" fill="none" stroke="#2A2A2A" stroke-width="0.5" opacity="0.3"/>
+      <path d="M125 130 Q120 145 110 152" fill="none" stroke="#2A2A2A" stroke-width="0.5" opacity="0.3"/>
+      <!-- Beard edge softness -->
+      <path d="M65 145 Q75 160 100 164 Q125 160 135 145" fill="none" stroke="#1A1A1A" stroke-width="1" opacity="0.4"/>
+    </g>
+
+    <!-- === KUMMA (Flat-topped Omani cap with embroidery) === -->
     <g id="avatar-kumma">
-      <!-- Main kumma shape -->
-      <ellipse cx="100" cy="68" rx="44" ry="15" fill="#E8DFC8"/>
-      <path d="M56 68 Q56 30 100 25 Q144 30 144 68" fill="url(#kummaGrad)"/>
-      <!-- Kumma embroidery pattern (tarzah) — geometric -->
-      <path d="M65 50 L75 42 L85 50 L95 42 L105 50 L115 42 L125 50 L135 42" fill="none" stroke="#C8B898" stroke-width="1" stroke-linecap="round" opacity="0.7"/>
-      <path d="M68 58 L78 50 L88 58 L98 50 L108 58 L118 50 L128 58" fill="none" stroke="#C8B898" stroke-width="0.8" stroke-linecap="round" opacity="0.5"/>
-      <!-- Top detail -->
-      <circle cx="100" cy="30" r="3" fill="none" stroke="#D0C8B0" stroke-width="0.8"/>
-      <circle cx="100" cy="30" r="1.5" fill="#D0C8B0" opacity="0.5"/>
-      <!-- Kumma edge band -->
-      <ellipse cx="100" cy="68" rx="44" ry="15" fill="none" stroke="#C8B898" stroke-width="1.5"/>
-      <ellipse cx="100" cy="70" rx="42" ry="13" fill="none" stroke="#DDD5C5" stroke-width="0.5"/>
+      <!-- Kumma body â€” flat topped, cylindrical -->
+      <path d="M58 78 L58 55 Q58 42 100 42 Q142 42 142 55 L142 78" fill="url(#kummaGrad)" stroke="#D8D0C0" stroke-width="0.5"/>
+      <!-- Flat top -->
+      <ellipse cx="100" cy="44" rx="42" ry="8" fill="#F5F0E8" stroke="#D8D0C0" stroke-width="0.5"/>
+
+      <!-- Embroidery band (the distinctive wide patterned band) -->
+      <rect x="58" y="54" width="84" height="22" fill="url(#kummaPattern)"/>
+      <!-- Band top border -->
+      <line x1="58" y1="54" x2="142" y2="54" stroke="#6B2D0F" stroke-width="1.2"/>
+      <!-- Band bottom border -->
+      <line x1="58" y1="76" x2="142" y2="76" stroke="#6B2D0F" stroke-width="1.2"/>
+      <!-- Additional thin decorative lines -->
+      <line x1="58" y1="56" x2="142" y2="56" stroke="#8B4525" stroke-width="0.4" opacity="0.5"/>
+      <line x1="58" y1="74" x2="142" y2="74" stroke="#8B4525" stroke-width="0.4" opacity="0.5"/>
+
+      <!-- Bottom rim of kumma -->
+      <ellipse cx="100" cy="78" rx="44" ry="10" fill="url(#kummaGrad)" stroke="#D8D0C0" stroke-width="0.5"/>
+      <!-- Rim sits on head, covers slightly -->
+      <path d="M56 78 Q56 85 100 88 Q144 85 144 78" fill="url(#kummaGrad)" stroke="#D8D0C0" stroke-width="0.3"/>
+
+      <!-- Top surface pattern (subtle) -->
+      <ellipse cx="100" cy="44" rx="30" ry="5" fill="none" stroke="#E0D8C8" stroke-width="0.5" opacity="0.5"/>
     </g>
   </g>
 
-  <!-- === BLINK ANIMATION OVERLAY === -->
+  <!-- === BLINK OVERLAY === -->
   <g id="avatar-blink" opacity="0">
-    <ellipse cx="83" cy="100" rx="10" ry="8" fill="url(#skinGrad)"/>
-    <path d="M73 100 Q83 104 93 100" fill="none" stroke="#3D2B1F" stroke-width="1.5" stroke-linecap="round"/>
-    <ellipse cx="117" cy="100" rx="10" ry="8" fill="url(#skinGrad)"/>
-    <path d="M107 100 Q117 104 127 100" fill="none" stroke="#3D2B1F" stroke-width="1.5" stroke-linecap="round"/>
+    <ellipse cx="82" cy="96" rx="11" ry="10" fill="url(#skinGrad)"/>
+    <path d="M71 96 Q82 101 93 96" fill="none" stroke="#1A1A1A" stroke-width="2" stroke-linecap="round"/>
+    <ellipse cx="118" cy="96" rx="11" ry="10" fill="url(#skinGrad)"/>
+    <path d="M107 96 Q118 101 129 96" fill="none" stroke="#1A1A1A" stroke-width="2" stroke-linecap="round"/>
   </g>
 
-  <!-- CSS Animations embedded -->
   <style>
-    /* Idle floating */
-    #avatar-body, #avatar-head {
-      animation: avatarIdle 3s ease-in-out infinite;
-    }
+    #avatar-body, #avatar-head { animation: avatarIdle 3s ease-in-out infinite; }
     @keyframes avatarIdle {
       0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-6px); }
+      50% { transform: translateY(-5px); }
     }
-
-    /* Blink every few seconds */
-    #avatar-blink {
-      animation: blink 4s ease-in-out infinite;
-    }
+    #avatar-blink { animation: blink 4s ease-in-out infinite; }
     @keyframes blink {
       0%, 92%, 100% { opacity: 0; }
       95%, 97% { opacity: 1; }
     }
-
-    /* Subtle head tilt */
-    #avatar-head {
-      animation: avatarIdle 3s ease-in-out infinite, headTilt 6s ease-in-out infinite;
-    }
+    #avatar-head { animation: avatarIdle 3s ease-in-out infinite, headTilt 6s ease-in-out infinite; }
     @keyframes headTilt {
       0%, 100% { transform: translateY(0) rotate(0deg); }
-      25% { transform: translateY(-6px) rotate(-2deg); }
+      25% { transform: translateY(-5px) rotate(-2deg); }
       75% { transform: translateY(-3px) rotate(2deg); }
     }
-
-    /* Wave animation class — applied via JS */
-    .avatar-waving #avatar-arm-right {
-      animation: waveArm 0.8s ease-in-out 3;
-      transform-origin: 132px 170px;
-    }
+    .avatar-waving #avatar-arm-right { animation: waveArm 0.8s ease-in-out 3; transform-origin: 135px 160px; }
     @keyframes waveArm {
       0%, 100% { transform: rotate(0deg); }
       25% { transform: rotate(-35deg) translateX(5px); }
-      50% { transform: rotate(-25deg) translateX(3px); }
       75% { transform: rotate(-35deg) translateX(5px); }
     }
-
-    /* Pointing animation */
-    .avatar-pointing #avatar-arm-right {
-      animation: pointArm 0.6s ease-out forwards;
-      transform-origin: 132px 170px;
-    }
+    .avatar-pointing #avatar-arm-right { animation: pointArm 0.6s ease-out forwards; transform-origin: 135px 160px; }
     @keyframes pointArm {
       0% { transform: rotate(0deg); }
       100% { transform: rotate(-50deg) translateX(10px) translateY(-10px); }
     }
-
-    /* Celebrate animation */
-    .avatar-celebrating #avatar-arm-right {
-      animation: celebrateRight 0.5s ease-in-out 4;
-      transform-origin: 132px 170px;
-    }
-    .avatar-celebrating #avatar-arm-left {
-      animation: celebrateLeft 0.5s ease-in-out 4;
-      transform-origin: 68px 170px;
-    }
-    @keyframes celebrateRight {
-      0%, 100% { transform: rotate(0deg); }
-      50% { transform: rotate(-45deg) translateY(-10px); }
-    }
-    @keyframes celebrateLeft {
-      0%, 100% { transform: rotate(0deg); }
-      50% { transform: rotate(45deg) translateY(-10px); }
-    }
-
-    /* Talking mouth animation */
-    .avatar-talking #avatar-mouth path:first-child {
-      animation: talkMouth 0.3s ease-in-out 6;
-    }
-    @keyframes talkMouth {
-      0%, 100% { d: path("M88 124 Q100 136 112 124"); }
-      50% { d: path("M88 124 Q100 140 112 124"); }
-    }
-
+    .avatar-celebrating #avatar-arm-right { animation: celebrateR 0.5s ease-in-out 4; transform-origin: 135px 160px; }
+    .avatar-celebrating #avatar-arm-left { animation: celebrateL 0.5s ease-in-out 4; transform-origin: 65px 160px; }
+    @keyframes celebrateR { 0%, 100% { transform: rotate(0); } 50% { transform: rotate(-45deg) translateY(-10px); } }
+    @keyframes celebrateL { 0%, 100% { transform: rotate(0); } 50% { transform: rotate(45deg) translateY(-10px); } }
     @media (prefers-reduced-motion: reduce) {
       #avatar-body, #avatar-head, #avatar-blink,
-      .avatar-waving #avatar-arm-right,
-      .avatar-pointing #avatar-arm-right,
-      .avatar-celebrating #avatar-arm-right,
-      .avatar-celebrating #avatar-arm-left {
-        animation: none !important;
-      }
+      .avatar-waving #avatar-arm-right, .avatar-pointing #avatar-arm-right,
+      .avatar-celebrating #avatar-arm-right, .avatar-celebrating #avatar-arm-left { animation: none !important; }
     }
   </style>
 </svg>
