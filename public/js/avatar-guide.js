@@ -6,8 +6,8 @@ const AvatarGuide = (function () {
   'use strict';
 
   const STORAGE_KEY = 'du-avatar-hidden';
-  const PEEK_PX = 35;           // how many px of head to show (shy peek — just kumma + forehead)
-  const EXPAND_OFFSET = 105;    // how far to slide in when fully expanded (show full character)
+  const PEEK_PX = 0;            // peek state: right: -50px means half is off-screen already
+  const EXPAND_OFFSET = 55;     // expand: slide 55px left so full character is on screen
   const PEEK_DELAY = 1500;      // ms before first peek on page load
   const AUTO_RETREAT_MS = 8000; // ms before auto-retreat from expanded
 
@@ -123,15 +123,15 @@ const AvatarGuide = (function () {
     }
   }
 
-  /** Show just the head peeking from the edge */
+  /** Show half the character peeking from the edge */
   function peek() {
     if (!guideEl) return;
     clearTimeout(retreatTimer);
     hideBubble();
     clearAnimationClasses();
 
-    var tx = isRtl ? (PEEK_PX) + 'px' : '-' + PEEK_PX + 'px';
-    guideEl.style.transform = 'translateX(' + tx + ')';
+    // Reset to default position (right: -50px = half off-screen)
+    guideEl.style.transform = 'translateX(0)';
     guideEl.classList.add('avatar-peek');
     guideEl.classList.remove('avatar-expanded');
     state = 'peek';
@@ -155,7 +155,8 @@ const AvatarGuide = (function () {
       svgImg.classList.add('avatar-' + msg.anim);
     }
 
-    var tx = isRtl ? (EXPAND_OFFSET) + 'px' : '-' + EXPAND_OFFSET + 'px';
+    // Slide left so the full character is visible on screen
+    var tx = isRtl ? EXPAND_OFFSET + 'px' : '-' + EXPAND_OFFSET + 'px';
     guideEl.style.transform = 'translateX(' + tx + ')';
     guideEl.classList.add('avatar-expanded');
     guideEl.classList.remove('avatar-peek');
@@ -208,12 +209,10 @@ const AvatarGuide = (function () {
         var lang = (typeof I18N !== 'undefined') ? I18N.getLang() : 'en';
         messageEl.textContent = msg[lang] || msg.en;
       }
-      // Re-apply correct direction offset
-      var tx = isRtl ? (EXPAND_OFFSET) + 'px' : '-' + EXPAND_OFFSET + 'px';
+      var tx = isRtl ? EXPAND_OFFSET + 'px' : '-' + EXPAND_OFFSET + 'px';
       guideEl.style.transform = 'translateX(' + tx + ')';
     } else if (state === 'peek') {
-      var tx2 = isRtl ? (PEEK_PX) + 'px' : '-' + PEEK_PX + 'px';
-      guideEl.style.transform = 'translateX(' + tx2 + ')';
+      guideEl.style.transform = 'translateX(0)';
     }
   }
 

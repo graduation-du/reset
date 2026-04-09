@@ -1,8 +1,8 @@
 <!-- Animated Omani Avatar Guide — Top-right shy-peek mechanic -->
-<div id="avatar-guide" class="fixed z-[90] pointer-events-none" style="right: 0; top: 60px; transform: translateX(100%);">
-  <!-- Avatar character (clipped to show only head when peeking) -->
-  <div id="avatar-character" class="pointer-events-auto cursor-pointer" style="width: 100px; height: 120px; overflow: hidden;" title="Tap me for help">
-    <img src="/images/avatar-omani.svg?v=<%= Date.now() %>" alt="Omani Guide" class="w-full" id="avatar-svg-img" style="margin-top: -5px;" />
+<div id="avatar-guide" class="fixed z-[90] pointer-events-none" style="right: -50px; top: 85px; transform: translateX(0);">
+  <!-- Avatar character -->
+  <div id="avatar-character" class="pointer-events-auto cursor-pointer" style="width: 100px;" title="Tap me for help">
+    <img src="/images/avatar-omani.svg?v=<%= Date.now() %>" alt="Omani Guide" class="w-full" id="avatar-svg-img" />
   </div>
   <!-- Speech bubble — positioned to the left of the avatar -->
   <div id="avatar-bubble" class="glass-panel absolute px-5 py-4 rounded-2xl rounded-tr-sm border border-primary/20 shadow-[0_0_30px_rgba(2,230,0,0.1)] pointer-events-auto opacity-0 transition-all duration-500" style="right: 110px; top: 10px; width: 280px; transform: scale(0.8) translateX(20px);">
@@ -21,8 +21,8 @@
   /* RTL: flip to left edge */
   [dir="rtl"] #avatar-guide {
     right: auto !important;
-    left: 0;
-    transform: translateX(-100%);
+    left: -50px;
+    transform: translateX(0);
   }
   [dir="rtl"] #avatar-guide.avatar-peek, [dir="rtl"] #avatar-guide.avatar-expanded {
     /* handled by JS with negative direction */
