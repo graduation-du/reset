@@ -50,5 +50,8 @@ const ActivityLog = (function () {
     renderPanel();
   }
 
+  // Re-render log panel after each AJAX page swap
+  document.addEventListener('page:enter', renderPanel);
+
   return { addEntry, clear, getLog, renderPanel };
 })();

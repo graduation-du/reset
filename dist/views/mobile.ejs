@@ -175,7 +175,7 @@
           sessionStorage.setItem('maskedMobile', data.maskedMobile || `+968 ●●●● ●${val.substring(5)}`);
           sessionStorage.removeItem('mobileFailures');
           if (typeof ActivityLog !== 'undefined') ActivityLog.addEntry('check_circle', 'log.mobileVerified');
-          setTimeout(() => { window.location.href = '/success'; }, 500);
+          navigateTo('/success');
         } else {
           if (typeof AudioFeedback !== 'undefined') AudioFeedback.play('error');
           failures++;

@@ -35,10 +35,9 @@
 <%- include('partials/navbar') %>
 <%- include('partials/background') %>
 
-<!-- Confetti Burst -->
-<div id="confetti-container" class="confetti-container" aria-hidden="true"></div>
-
 <main class="relative z-10 flex flex-col items-center justify-center min-h-screen px-10 pt-28 pb-40">
+<!-- Confetti Burst — inside main so AJAX router picks it up -->
+<div id="confetti-container" class="confetti-container" aria-hidden="true"></div>
   <div class="w-full max-w-3xl screen-transition">
 
     <div class="glass-panel p-12 rounded-[2.5rem] shadow-[0_0_100px_rgba(0,0,0,0.5)] border-t border-white/10 relative overflow-hidden">
@@ -202,7 +201,7 @@
     sessionStorage.clear();
 
     function goHome() {
-      window.location.href = '/';
+      navigateTo('/');
     }
 
     const interval = setInterval(() => {

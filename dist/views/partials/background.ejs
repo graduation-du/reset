@@ -1,81 +1,19 @@
-<!-- Gradient Aurora Background -->
+<!-- Static Deep Background — simple fixed blobs, no animation -->
 <div class="fixed inset-0 pointer-events-none z-0 overflow-hidden" aria-hidden="true">
-  <!-- Base static glow (fallback) -->
-  <div class="absolute -top-40 -left-40 w-[600px] h-[600px] rainbow-halo rounded-full"></div>
-
-  <!-- Aurora Blob 1 — Cyan/Blue (top-right, drifts left) -->
-  <div class="aurora-blob aurora-blob-1"></div>
-  <!-- Aurora Blob 2 — Green (bottom-left, drifts up-right) -->
-  <div class="aurora-blob aurora-blob-2"></div>
-  <!-- Aurora Blob 3 — Pink/Magenta (center, drifts diagonally) -->
-  <div class="aurora-blob aurora-blob-3"></div>
-  <!-- Aurora Blob 4 — Teal (top-left, slow orbit) -->
-  <div class="aurora-blob aurora-blob-4"></div>
+  <!-- Cyan glow — top right -->
+  <div class="bg-blob" style="width:580px;height:580px;top:-8%;right:-6%;background:radial-gradient(circle,rgba(94,212,255,0.22) 0%,transparent 70%);"></div>
+  <!-- Green glow — bottom left -->
+  <div class="bg-blob" style="width:620px;height:620px;bottom:-12%;left:-8%;background:radial-gradient(circle,rgba(2,230,0,0.18) 0%,transparent 70%);"></div>
+  <!-- Pink accent — centre -->
+  <div class="bg-blob" style="width:480px;height:480px;top:38%;left:28%;background:radial-gradient(circle,rgba(255,171,243,0.12) 0%,transparent 70%);"></div>
 </div>
 
 <style>
-  .aurora-blob {
+  .bg-blob {
     position: absolute;
     border-radius: 50%;
-    filter: blur(60px);       /* reduced from 80px — less GPU fill rate */
-    opacity: 0.4;             /* reduced from 0.5 */
-    will-change: transform;   /* promotes to own compositor layer */
-    transform: translateZ(0); /* force GPU layer */
+    filter: blur(70px);
   }
-
-  .aurora-blob-1 {
-    width: 600px; height: 600px; /* reduced from 700px */
-    background: radial-gradient(circle, rgba(94,212,255,0.5) 0%, rgba(94,212,255,0) 70%);
-    top: -10%; right: -5%;
-    animation: aurora1 26s ease-in-out infinite alternate; /* slower = less GPU work */
-  }
-  .aurora-blob-2 {
-    width: 700px; height: 700px; /* reduced from 800px */
-    background: radial-gradient(circle, rgba(2,230,0,0.4) 0%, rgba(2,230,0,0) 70%);
-    bottom: -15%; left: -10%;
-    animation: aurora2 30s ease-in-out infinite alternate;
-  }
-  .aurora-blob-3 {
-    width: 550px; height: 550px; /* reduced from 600px */
-    background: radial-gradient(circle, rgba(255,171,243,0.35) 0%, rgba(255,171,243,0) 70%);
-    top: 40%; left: 30%;
-    animation: aurora3 28s ease-in-out infinite alternate;
-  }
-  .aurora-blob-4 {
-    width: 450px; height: 450px;
-    background: radial-gradient(circle, rgba(94,212,255,0.25) 0%, rgba(2,230,0,0.15) 50%, transparent 70%);
-    top: -5%; left: -8%;
-    animation: aurora4 34s ease-in-out infinite alternate;
-  }
-
-  @keyframes aurora1 {
-    0%   { transform: translate(0, 0) scale(1); }
-    33%  { transform: translate(-120px, 80px) scale(1.15); }
-    66%  { transform: translate(-60px, 160px) scale(0.9); }
-    100% { transform: translate(-180px, 60px) scale(1.1); }
-  }
-  @keyframes aurora2 {
-    0%   { transform: translate(0, 0) scale(1); }
-    33%  { transform: translate(150px, -100px) scale(1.2); }
-    66%  { transform: translate(80px, -180px) scale(0.95); }
-    100% { transform: translate(200px, -80px) scale(1.05); }
-  }
-  @keyframes aurora3 {
-    0%   { transform: translate(0, 0) scale(1); }
-    33%  { transform: translate(-100px, -80px) scale(1.1); }
-    66%  { transform: translate(80px, 60px) scale(0.85); }
-    100% { transform: translate(-50px, 100px) scale(1.15); }
-  }
-  @keyframes aurora4 {
-    0%   { transform: translate(0, 0) scale(1) rotate(0deg); }
-    50%  { transform: translate(100px, 120px) scale(1.2) rotate(30deg); }
-    100% { transform: translate(60px, 200px) scale(0.9) rotate(-15deg); }
-  }
-
-  /* Reduce motion for accessibility */
-  @media (prefers-reduced-motion: reduce) {
-    .aurora-blob { animation: none !important; }
-  }
-  /* High contrast mode: hide aurora */
-  html.high-contrast .aurora-blob { display: none; }
+  /* High contrast mode: hide background blobs */
+  html.high-contrast .bg-blob { display: none; }
 </style>

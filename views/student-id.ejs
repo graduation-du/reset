@@ -263,7 +263,7 @@
           sessionStorage.setItem('studentName', data.studentName || '');
           sessionStorage.removeItem('studentIdFailures');
           if (typeof ActivityLog !== 'undefined') ActivityLog.addEntry('check_circle', 'log.studentIdVerified');
-          setTimeout(() => { window.location.href = '/verify/dob'; }, 500);
+          navigateTo('/verify/dob');
         } else {
           if (typeof AudioFeedback !== 'undefined') AudioFeedback.play('error');
           failures++;

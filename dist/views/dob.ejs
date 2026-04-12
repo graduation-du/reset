@@ -320,7 +320,7 @@
           sessionStorage.setItem('dob', `${selected.day}/${selected.month}/${selected.year}`);
           sessionStorage.removeItem('dobFailures');
           if (typeof ActivityLog !== 'undefined') ActivityLog.addEntry('check_circle', 'log.dobVerified');
-          setTimeout(() => { window.location.href = '/verify/civil-id'; }, 500);
+          navigateTo('/verify/civil-id');
         } else {
           if (typeof AudioFeedback !== 'undefined') AudioFeedback.play('error');
           failures++;

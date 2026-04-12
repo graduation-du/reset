@@ -41,5 +41,8 @@ const PrivacyShield = (function () {
     init();
   }
 
+  // Re-scan new inputs after each AJAX page swap
+  document.addEventListener('page:enter', init);
+
   return { init };
 })();

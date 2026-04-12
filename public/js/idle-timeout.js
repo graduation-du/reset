@@ -1,128 +1,150 @@
 /**
- * Idle Timeout Handler — Enhanced with Countdown Ring (#11) + Auto-Clear Wipe (#12)
- * Shows a warning overlay with circular countdown after IDLE_TIMEOUT ms.
- * Plays wipe animation on session clear.
+ * Idle Timeout Handler — Enhanced with Countdown Ring + Auto-Clear Wipe
+ * Exposed as IdleTimeoutController so page-router can call .init() after each AJAX navigation.
+ * Event listeners are registered only ONCE (guarded by _eventsRegistered).
  */
-(function () {
-  const IDLE_TIMEOUT = parseInt(document.body.dataset.idleTimeout || '60000');
-  const IDLE_WARNING = parseInt(document.body.dataset.idleWarning || '10000');
-  const RING_CIRCUMFERENCE = 2 * Math.PI * 54; // ~339.29
+var IdleTimeoutController = (function () {
+  var RING_CIRCUMFERENCE = 2 * Math.PI * 54; // ~339.29
 
-  // Only activate on screens that opt in
-  const main = document.querySelector('[data-idle-enabled="true"]');
-  if (!main) return;
+  var _idleTimer        = null;
+  var _countdownInterval = null;
+  var _eventsRegistered = false;
+  var _active           = false;
 
-  const overlay = document.getElementById('idle-overlay');
-  const countdownEl = document.getElementById('idle-countdown');
-  const countdownTextEl = document.getElementById('idle-countdown-text');
-  const ringEl = document.getElementById('idle-ring');
-  const dismissBtn = document.getElementById('idle-dismiss');
-  if (!overlay) return;
-
-  // Set ring dasharray
-  if (ringEl) {
-    ringEl.style.strokeDasharray = RING_CIRCUMFERENCE;
-    ringEl.style.strokeDashoffset = 0;
+  function _cfg() {
+    return {
+      idle: parseInt((document.body && document.body.dataset.idleTimeout) || '60000'),
+      warn: parseInt((document.body && document.body.dataset.idleWarning)  || '10000')
+    };
   }
 
-  let idleTimer = null;
-  let warningTimer = null;
-  let countdownInterval = null;
-
-  function resetIdleTimer() {
-    clearTimeout(idleTimer);
-    clearTimeout(warningTimer);
-    clearInterval(countdownInterval);
-    overlay.classList.add('hidden');
-    overlay.classList.remove('flex');
-
-    idleTimer = setTimeout(showWarning, IDLE_TIMEOUT);
+  function _clearTimers() {
+    clearTimeout(_idleTimer);
+    clearInterval(_countdownInterval);
+    _idleTimer = _countdownInterval = null;
   }
 
-  function showWarning() {
+  function _hideOverlay() {
+    var ov = document.getElementById('idle-overlay');
+    if (ov) { ov.classList.add('hidden'); ov.classList.remove('flex'); }
+  }
+
+  function _resetTimer() {
+    _clearTimers();
+    _hideOverlay();
+    if (!_active) return;
+    _idleTimer = setTimeout(_showWarning, _cfg().idle);
+  }
+
+  function _showWarning() {
+    var overlay        = document.getElementById('idle-overlay');
+    var countdownEl    = document.getElementById('idle-countdown');
+    var countdownTextEl = document.getElementById('idle-countdown-text');
+    var ringEl         = document.getElementById('idle-ring');
+    if (!overlay) return;
+
     overlay.classList.remove('hidden');
     overlay.classList.add('flex');
-    const totalSecs = Math.floor(IDLE_WARNING / 1000);
-    let remaining = totalSecs;
 
-    function updateRing() {
-      if (countdownEl) countdownEl.textContent = remaining;
+    var cfg       = _cfg();
+    var totalSecs = Math.floor(cfg.warn / 1000);
+    var remaining = totalSecs;
+
+    if (ringEl) {
+      ringEl.style.strokeDasharray  = RING_CIRCUMFERENCE;
+      ringEl.style.strokeDashoffset = 0;
+    }
+
+    function _updateRing() {
+      if (countdownEl)     countdownEl.textContent     = remaining;
       if (countdownTextEl) countdownTextEl.textContent = remaining;
       if (ringEl) {
-        const progress = (totalSecs - remaining) / totalSecs;
-        ringEl.style.strokeDashoffset = RING_CIRCUMFERENCE * progress;
+        ringEl.style.strokeDashoffset =
+          RING_CIRCUMFERENCE * ((totalSecs - remaining) / totalSecs);
       }
     }
-    updateRing();
+    _updateRing();
 
-    // Play warning sound
     if (typeof AudioFeedback !== 'undefined') AudioFeedback.play('warning');
 
-    countdownInterval = setInterval(() => {
+    _countdownInterval = setInterval(function () {
       remaining--;
-      updateRing();
-
-      // Tick sound in last 5 seconds
+      _updateRing();
       if (remaining <= 5 && remaining > 0 && typeof AudioFeedback !== 'undefined') {
         AudioFeedback.play('click');
       }
-
       if (remaining <= 0) {
-        clearInterval(countdownInterval);
-        showWipeAndReset();
+        clearInterval(_countdownInterval);
+        _wipeAndReset();
       }
     }, 1000);
   }
 
-  // Auto-Clear Wipe Animation (#12)
-  function showWipeAndReset() {
-    overlay.classList.add('hidden');
-    overlay.classList.remove('flex');
-
-    const wipe = document.createElement('div');
+  function _wipeAndReset() {
+    _hideOverlay();
+    var wipe = document.createElement('div');
     wipe.className = 'wipe-overlay';
-    wipe.innerHTML = `
-      <div class="wipe-icon flex flex-col items-center gap-3">
-        <span class="material-symbols-outlined text-6xl text-primary">cleaning_services</span>
-        <span class="font-headline font-bold text-xl text-white">Session Cleared</span>
-      </div>
-    `;
+    wipe.innerHTML =
+      '<div class="wipe-icon flex flex-col items-center gap-3">' +
+      '<span class="material-symbols-outlined text-6xl text-primary">cleaning_services</span>' +
+      '<span class="font-headline font-bold text-xl text-white">Session Cleared</span></div>';
     document.body.appendChild(wipe);
-
     sessionStorage.clear();
     if (typeof ActivityLog !== 'undefined') ActivityLog.clear();
-
-    setTimeout(() => {
-      window.location.href = '/';
-    }, 1100);
+    setTimeout(function () { window.location.href = '/'; }, 1100);
   }
 
-  // Dismiss warning
-  if (dismissBtn) {
-    dismissBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      if (typeof AudioFeedback !== 'undefined') AudioFeedback.play('click');
-      resetIdleTimer();
+  // ── Register document-level event listeners ONCE ──────────────────────────
+  function _registerEvents() {
+    if (_eventsRegistered) return;
+    _eventsRegistered = true;
+
+    // Dismiss button (capture phase so stopPropagation works reliably)
+    document.addEventListener('click', function (e) {
+      var overlay    = document.getElementById('idle-overlay');
+      var dismissBtn = document.getElementById('idle-dismiss');
+      if (!overlay || overlay.classList.contains('hidden')) return;
+
+      if (dismissBtn && (e.target === dismissBtn || dismissBtn.contains(e.target))) {
+        e.stopPropagation();
+        if (typeof AudioFeedback !== 'undefined') AudioFeedback.play('click');
+        _resetTimer();
+      } else if (e.target === overlay) {
+        _resetTimer();
+      }
+    }, true);
+
+    // User activity resets the timer when warning overlay is not showing
+    ['touchstart', 'touchmove', 'keydown', 'mousemove'].forEach(function (evt) {
+      document.addEventListener(evt, function () {
+        var overlay = document.getElementById('idle-overlay');
+        if (_active && overlay && overlay.classList.contains('hidden')) _resetTimer();
+      }, { passive: true });
     });
   }
 
-  overlay.addEventListener('click', (e) => {
-    if (e.target === overlay) {
-      resetIdleTimer();
+  // ── Public init — called on first load and after each AJAX navigation ─────
+  function init() {
+    _clearTimers();
+    var main = document.querySelector('[data-idle-enabled="true"]');
+    if (!main) {
+      _active = false;
+      return;
     }
-  });
+    _active = true;
+    _registerEvents();
+    _resetTimer();
+  }
 
-  // Listen for all interaction events
-  const events = ['touchstart', 'touchmove', 'click', 'keydown', 'mousemove'];
-  events.forEach(evt => {
-    document.addEventListener(evt, () => {
-      // Only reset if warning is not showing
-      if (overlay.classList.contains('hidden')) {
-        resetIdleTimer();
-      }
-    }, { passive: true });
-  });
+  // Auto-init on first page load
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
 
-  // Start the timer
-  resetIdleTimer();
-})();
+  // Re-init on every AJAX page change
+  document.addEventListener('page:enter', init);
+
+  return { init: init };
+}());

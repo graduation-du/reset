@@ -585,9 +585,8 @@
       border-color: rgba(0, 0, 0, 0.08) !important;
     }
 
-    /* Aurora blobs — muted in light mode */
-    html:not(.dark) .aurora-blob { opacity: 0.12 !important; }
-    html:not(.dark) .rainbow-halo { opacity: 0.08 !important; }
+    /* Background blobs — muted in light mode */
+    html:not(.dark) .bg-blob { opacity: 0.08 !important; }
 
     /* Virtual keyboard light */
     html:not(.dark) .vkb-container {
@@ -648,7 +647,7 @@
       transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
     }
     /* Composited-only elements: no CPU transitions */
-    .screen-transition, .slide-in-right, .slide-in-left, .aurora-blob,
+    .screen-transition, .slide-in-right, .slide-in-left, .bg-blob,
     .ripple::after, .skeleton, .vkb-container, .countdown-ring .ring-fg,
     #avatar-guide, #avatar-character, .lang-btn-glow, .btn-primary {
       transition: none !important;
@@ -680,20 +679,17 @@
     /* Hide avatar in high contrast */
     html.high-contrast #avatar-guide { display: none !important; }
   </style>
-  <!-- i18n + Audio + Privacy + Activity Log + Theme + Avatar loaded early -->
+  <!-- i18n + Audio + Theme + Avatar + AJAX Page Router loaded early (shared, run once) -->
   <script src="/js/i18n.js?v=<%= Date.now() %>"></script>
   <script src="/js/audio.js?v=<%= Date.now() %>"></script>
   <script src="/js/theme-toggle.js?v=<%= Date.now() %>"></script>
   <script src="/js/avatar-guide.js?v=<%= Date.now() %>"></script>
+  <script src="/js/page-router.js?v=<%= Date.now() %>"></script>
   <script>
-    // Disable browser back button (FR-06) — redirect to splash
-    history.pushState(null, '', location.href);
-    window.addEventListener('popstate', function() {
-      history.pushState(null, '', location.href);
-      window.location.href = '/';
-    });
+    // Suppress native back navigation (FR-06) — the page-router popstate handler takes over.
+    history.replaceState({ url: location.pathname }, '', location.href);
 
-    // Smooth page transitions — intercept link clicks
+    // Smooth page transitions — intercept <a> link clicks and route via navigateTo().
     document.addEventListener('DOMContentLoaded', function() {
       document.body.classList.add('page-entered');
 
@@ -735,8 +731,12 @@
         var href = link.getAttribute('href');
         if (!href || href.startsWith('#') || href.startsWith('http') || href.startsWith('mailto:')) return;
         e.preventDefault();
-        document.body.classList.add('page-exiting');
-        setTimeout(function() { window.location.href = href; }, 280);
+        if (typeof navigateTo !== 'undefined') {
+          navigateTo(href);
+        } else {
+          document.body.classList.add('page-exiting');
+          setTimeout(function() { window.location.href = href; }, 280);
+        }
       });
     });
   </script>

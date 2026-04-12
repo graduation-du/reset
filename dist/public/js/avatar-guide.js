@@ -222,10 +222,29 @@ const AvatarGuide = (function () {
     init();
   }
 
+  // Re-trigger for new route after AJAX page swap
+  function onRouteChange() {
+    if (!guideEl) return;
+    clearTimeout(retreatTimer);
+    // Snap back to hidden
+    state = 'hidden';
+    guideEl.style.transform = isRtl ? 'translateX(-100%)' : 'translateX(100%)';
+    hideBubble();
+    // Start the peek sequence for the new route
+    var route = window.location.pathname;
+    var msg = messages[route];
+    if (msg) {
+      setTimeout(function () { peek(); }, msg.delay || PEEK_DELAY);
+    }
+  }
+
+  document.addEventListener('page:enter', onRouteChange);
+
   return {
     show: expand,
     hide: retreat,
     peek: peek,
-    onLanguageChange: onLanguageChange
+    onLanguageChange: onLanguageChange,
+    onRouteChange: onRouteChange
   };
 })();

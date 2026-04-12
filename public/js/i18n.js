@@ -347,5 +347,8 @@ const I18N = (function () {
     applyTranslations();
   }
 
+  // Re-apply translations after each AJAX page swap
+  document.addEventListener('page:enter', applyTranslations);
+
   return { t, getLang, setLang, toggleLang, applyTranslations };
 })();

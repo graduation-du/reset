@@ -182,7 +182,7 @@
           sessionStorage.setItem('civilId', val);
           sessionStorage.removeItem('civilIdFailures');
           if (typeof ActivityLog !== 'undefined') ActivityLog.addEntry('check_circle', 'log.civilIdVerified');
-          setTimeout(() => { window.location.href = '/verify/mobile'; }, 500);
+          navigateTo('/verify/mobile');
         } else {
           if (typeof AudioFeedback !== 'undefined') AudioFeedback.play('error');
           failures++;

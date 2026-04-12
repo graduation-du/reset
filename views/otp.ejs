@@ -256,7 +256,7 @@
           sessionStorage.clear();
           sessionStorage.setItem('maskedMobile', maskedMobile || '');
           sessionStorage.setItem('resetComplete', 'true');
-          setTimeout(() => { window.location.href = '/success'; }, 500);
+          navigateTo('/success');
         } else {
           failures++;
           document.getElementById('attempts-left').textContent = maxAttempts - failures;
