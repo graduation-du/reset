@@ -55,7 +55,15 @@
     doc.body.querySelectorAll('style').forEach(function (s) {
       if (s.textContent.trim()) pageStyles.push(s.textContent);
     });
+    // Only collect scripts that come AFTER <main> or are inside <main>.
+    // Scripts before <main> (navbar clock, overlays log toggle) are shared
+    // partials that already ran on initial page load — re-running them would
+    // create duplicate intervals, duplicate event listeners, etc.
     doc.body.querySelectorAll('script').forEach(function (s) {
+      if (main && !main.contains(s) &&
+          !(main.compareDocumentPosition(s) & Node.DOCUMENT_POSITION_FOLLOWING)) {
+        return; // script is before <main> — skip it
+      }
       var src = s.getAttribute('src');
       if (src) {
         externalSrcs.push(src);  // store full original src value
@@ -129,13 +137,9 @@
         document.head.appendChild(styleEl);
       }
 
-      // Find current <main>. If its parent is an <a> (splash "tap anywhere" wrapper),
-      // replace the whole <a> so it doesn't silently wrap future pages.
+      // Swap the current <main> with the new one.
       var current = document.querySelector('main');
-      var target  = (current && current.parentElement && current.parentElement.tagName === 'A')
-        ? current.parentElement
-        : current;
-      if (target) target.replaceWith(parsed.main);
+      if (current) current.replaceWith(parsed.main);
 
       // Update the browser URL bar.
       history.pushState({ url: url }, '', url);

@@ -2,11 +2,10 @@
 
 <%- include('partials/navbar') %>
 <%- include('partials/background') %>
-<%- include('partials/avatar-guide') %>
+<%- include('partials/overlays') %>
 
 <!-- Splash Screen — Tap Anywhere to Begin -->
-<a href="/verify/student-id" class="block absolute inset-0 z-10">
-  <main class="flex flex-col items-center justify-center min-h-screen px-10 pt-28 pb-40">
+<main id="splash-main" class="relative z-10 flex flex-col items-center justify-center min-h-screen px-10 pt-28 pb-40 cursor-pointer" data-prefetch="/verify/student-id">
 
     <!-- Hero Header -->
     <div class="text-center mb-14 max-w-3xl screen-transition">
@@ -84,8 +83,7 @@
       </div>
     </div>
 
-  </main>
-</a>
+</main>
 
 <%- include('partials/footer') %>
 
@@ -120,6 +118,16 @@
       AvatarGuide.onLanguageChange();
     }
   });
+
+  // Tap anywhere (except the lang toggle) to start the wizard
+  var splashMain = document.getElementById('splash-main');
+  if (splashMain) {
+    splashMain.addEventListener('click', function (e) {
+      if (e.target.closest('#splash-lang-toggle')) return;
+      if (typeof navigateTo !== 'undefined') navigateTo('/verify/student-id');
+      else window.location.href = '/verify/student-id';
+    });
+  }
 })();
 </script>
 
