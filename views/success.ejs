@@ -199,8 +199,17 @@
 
     // Clear all session data immediately (security)
     sessionStorage.clear();
+    if (typeof ActivityLog !== 'undefined') ActivityLog.clear();
 
     function goHome() {
+      // Clear all session/overlay state for a fresh start
+      sessionStorage.clear();
+      if (typeof ActivityLog !== 'undefined') ActivityLog.clear();
+      // Hide any open modals
+      var cm = document.getElementById('cancel-modal');
+      if (cm) { cm.classList.add('hidden'); cm.classList.remove('flex'); }
+      var io = document.getElementById('idle-overlay');
+      if (io) { io.classList.add('hidden'); io.classList.remove('flex'); }
       navigateTo('/');
     }
 

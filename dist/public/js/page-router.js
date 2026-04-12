@@ -141,6 +141,16 @@
       var current = document.querySelector('main');
       if (current) current.replaceWith(parsed.main);
 
+      // When returning to splash (/), reset session state for a fresh start.
+      if (url === '/') {
+        sessionStorage.clear();
+        if (typeof ActivityLog !== 'undefined') ActivityLog.clear();
+        var cm = document.getElementById('cancel-modal');
+        if (cm) { cm.classList.add('hidden'); cm.classList.remove('flex'); }
+        var io = document.getElementById('idle-overlay');
+        if (io) { io.classList.add('hidden'); io.classList.remove('flex'); }
+      }
+
       // Update the browser URL bar.
       history.pushState({ url: url }, '', url);
 

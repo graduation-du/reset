@@ -18,6 +18,13 @@ const ActivityLog = (function () {
 
   function clear() {
     sessionStorage.removeItem(LOG_KEY);
+    // Also hide the panel immediately so stale entries don't show
+    var panel = document.getElementById('activity-log-panel');
+    if (panel) {
+      panel.classList.add('hidden');
+      var list = panel.querySelector('.activity-log-list');
+      if (list) list.innerHTML = '';
+    }
   }
 
   function renderPanel() {

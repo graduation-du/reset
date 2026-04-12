@@ -32,8 +32,15 @@
       }
       if (cancelYes) {
         cancelYes.addEventListener('click', function () {
+          modal.classList.add('hidden');
+          modal.classList.remove('flex');
           sessionStorage.clear();
-          window.location.href = '/';
+          if (typeof ActivityLog !== 'undefined') ActivityLog.clear();
+          if (typeof navigateTo !== 'undefined') {
+            navigateTo('/');
+          } else {
+            window.location.href = '/';
+          }
         });
       }
       modal.addEventListener('click', function (e) {
