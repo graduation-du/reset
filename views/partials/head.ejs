@@ -112,9 +112,11 @@
       position: relative;
       border: none !important;
       background: conic-gradient(from var(--border-angle), #5ed4ff, #02e600, #ffabf3, #5ed4ff) border-box;
-      animation: rotateBorder 4s linear infinite;
+      animation: rotateBorder 6s linear infinite;
+      animation-play-state: running;
       border-radius: 1.25rem;
       padding: 3px;
+      will-change: background;
     }
     .lang-btn-glow::before {
       content: '';
@@ -122,10 +124,10 @@
       inset: 0;
       border-radius: inherit;
       background: conic-gradient(from var(--border-angle), #5ed4ff, #02e600, #ffabf3, #5ed4ff);
-      filter: blur(16px);
-      opacity: 0.35;
+      filter: blur(14px);
+      opacity: 0.25;
       z-index: -1;
-      animation: rotateBorder 4s linear infinite;
+      animation: rotateBorder 6s linear infinite;
     }
     .lang-btn-inner {
       display: flex;
@@ -202,13 +204,27 @@
       to { opacity: 1; }
     }
 
-    /* Button glow */
-    @keyframes pulse-glow {
-      0%, 100% { box-shadow: 0 0 20px rgba(2, 230, 0, 0.3); }
-      50% { box-shadow: 0 0 40px rgba(2, 230, 0, 0.6); }
+    /* Button glow — uses opacity on pseudo-element (GPU composited, no repaint) */
+    .btn-primary {
+      position: relative;
+      will-change: transform;
     }
-    .btn-primary { animation: pulse-glow 2s ease-in-out infinite; }
-    .btn-primary:hover { animation: none; box-shadow: 0 0 60px rgba(2, 230, 0, 0.5); }
+    .btn-primary::after {
+      content: '';
+      position: absolute;
+      inset: -4px;
+      border-radius: inherit;
+      background: radial-gradient(ellipse at center, rgba(2,230,0,0.5) 0%, transparent 70%);
+      filter: blur(12px);
+      animation: pulse-glow-opacity 2s ease-in-out infinite;
+      pointer-events: none;
+      z-index: -1;
+    }
+    @keyframes pulse-glow-opacity {
+      0%, 100% { opacity: 0.5; }
+      50% { opacity: 1; }
+    }
+    .btn-primary:hover::after { animation: none; opacity: 1; }
 
     /* === Auto-Focus Glow === */
     @keyframes focusGlow {
@@ -624,16 +640,21 @@
     /* Countdown ring light */
     html:not(.dark) .countdown-ring .ring-bg { stroke: rgba(0,0,0,0.06); }
 
-    /* Smooth theme transition */
-    html { transition: background-color 0.3s ease, color 0.3s ease; }
-    html *, html *::before, html *::after {
-      transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+    /* Smooth theme transition — TARGETED only (wildcard * causes massive style recalc) */
+    html { transition: background-color 0.3s ease; }
+    body, .glass-panel, nav[role="banner"], footer,
+    input, select, .vkb-key, .text-on-surface,
+    .text-on-surface-variant, .text-primary, .text-secondary {
+      transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
     }
-    /* Exclude animations/transforms from transition */
+    /* Composited-only elements: no CPU transitions */
     .screen-transition, .slide-in-right, .slide-in-left, .aurora-blob,
-    .ripple::after, .skeleton, .vkb-container, .countdown-ring .ring-fg {
+    .ripple::after, .skeleton, .vkb-container, .countdown-ring .ring-fg,
+    #avatar-guide, #avatar-character, .lang-btn-glow, .btn-primary {
       transition: none !important;
     }
+    /* Avatar slide gets its own transform transition */
+    #avatar-guide { transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1) !important; }
 
     /* ============================================= */
     /* === AVATAR GUIDE ANIMATIONS               === */

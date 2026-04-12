@@ -17,34 +17,35 @@
   .aurora-blob {
     position: absolute;
     border-radius: 50%;
-    filter: blur(80px);
-    opacity: 0.5;
-    will-change: transform;
+    filter: blur(60px);       /* reduced from 80px — less GPU fill rate */
+    opacity: 0.4;             /* reduced from 0.5 */
+    will-change: transform;   /* promotes to own compositor layer */
+    transform: translateZ(0); /* force GPU layer */
   }
 
   .aurora-blob-1 {
-    width: 700px; height: 700px;
-    background: radial-gradient(circle, rgba(94,212,255,0.6) 0%, rgba(94,212,255,0) 70%);
+    width: 600px; height: 600px; /* reduced from 700px */
+    background: radial-gradient(circle, rgba(94,212,255,0.5) 0%, rgba(94,212,255,0) 70%);
     top: -10%; right: -5%;
-    animation: aurora1 18s ease-in-out infinite alternate;
+    animation: aurora1 26s ease-in-out infinite alternate; /* slower = less GPU work */
   }
   .aurora-blob-2 {
-    width: 800px; height: 800px;
-    background: radial-gradient(circle, rgba(2,230,0,0.5) 0%, rgba(2,230,0,0) 70%);
+    width: 700px; height: 700px; /* reduced from 800px */
+    background: radial-gradient(circle, rgba(2,230,0,0.4) 0%, rgba(2,230,0,0) 70%);
     bottom: -15%; left: -10%;
-    animation: aurora2 22s ease-in-out infinite alternate;
+    animation: aurora2 30s ease-in-out infinite alternate;
   }
   .aurora-blob-3 {
-    width: 600px; height: 600px;
-    background: radial-gradient(circle, rgba(255,171,243,0.45) 0%, rgba(255,171,243,0) 70%);
+    width: 550px; height: 550px; /* reduced from 600px */
+    background: radial-gradient(circle, rgba(255,171,243,0.35) 0%, rgba(255,171,243,0) 70%);
     top: 40%; left: 30%;
-    animation: aurora3 20s ease-in-out infinite alternate;
+    animation: aurora3 28s ease-in-out infinite alternate;
   }
   .aurora-blob-4 {
-    width: 500px; height: 500px;
-    background: radial-gradient(circle, rgba(94,212,255,0.35) 0%, rgba(2,230,0,0.2) 50%, transparent 70%);
+    width: 450px; height: 450px;
+    background: radial-gradient(circle, rgba(94,212,255,0.25) 0%, rgba(2,230,0,0.15) 50%, transparent 70%);
     top: -5%; left: -8%;
-    animation: aurora4 25s ease-in-out infinite alternate;
+    animation: aurora4 34s ease-in-out infinite alternate;
   }
 
   @keyframes aurora1 {

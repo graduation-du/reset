@@ -171,21 +171,17 @@
   </g>
 
   <style>
-    #avatar-body, #avatar-head { animation: avatarIdle 3s ease-in-out infinite; }
+    /* Single idle float — both body+head move together (one compositor layer) */
+    #avatar-body, #avatar-head { animation: avatarIdle 3.5s ease-in-out infinite; }
     @keyframes avatarIdle {
       0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-5px); }
+      50% { transform: translateY(-6px); }
     }
-    #avatar-blink { animation: blink 4s ease-in-out infinite; }
+    /* Blink less often to reduce rasterisation calls */
+    #avatar-blink { animation: blink 7s ease-in-out infinite; }
     @keyframes blink {
-      0%, 92%, 100% { opacity: 0; }
-      95%, 97% { opacity: 1; }
-    }
-    #avatar-head { animation: avatarIdle 3s ease-in-out infinite, headTilt 6s ease-in-out infinite; }
-    @keyframes headTilt {
-      0%, 100% { transform: translateY(0) rotate(0deg); }
-      25% { transform: translateY(-5px) rotate(-2deg); }
-      75% { transform: translateY(-3px) rotate(2deg); }
+      0%, 94%, 100% { opacity: 0; }
+      96%, 98% { opacity: 1; }
     }
     .avatar-waving #avatar-arm-right { animation: waveArm 0.8s ease-in-out 3; transform-origin: 135px 160px; }
     @keyframes waveArm {
