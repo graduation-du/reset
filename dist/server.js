@@ -1,6 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const path = require('path');
+const fs = require('fs');
 const helmet = require('helmet');
 const compression = require('compression');
 
@@ -44,9 +45,7 @@ app.use((req, res, next) => {
     IDLE_WARNING: parseInt(process.env.IDLE_WARNING) || 10000,
     SUCCESS_COUNTDOWN: parseInt(process.env.SUCCESS_COUNTDOWN) || 30,
     VERIFY_DELAY: parseInt(process.env.VERIFY_DELAY) || 1500,
-    MAX_ATTEMPTS: parseInt(process.env.MAX_ATTEMPTS) || 3,
-    OTP_EXPIRY: parseInt(process.env.OTP_EXPIRY) || 300,
-    MAX_OTP_RESENDS: parseInt(process.env.MAX_OTP_RESENDS) || 3
+    MAX_ATTEMPTS: parseInt(process.env.MAX_ATTEMPTS) || 3
   };
   next();
 });
@@ -83,12 +82,7 @@ app.get('/verify/mobile', (req, res) => {
   res.render('mobile');
 });
 
-// Screen 7 — OTP Verification
-app.get('/verify/otp', (req, res) => {
-  res.render('otp');
-});
-
-// Screen 8 — Success
+// Screen 7 — Success
 app.get('/success', (req, res) => {
   res.render('success');
 });
@@ -153,35 +147,181 @@ app.post('/api/verify/mobile', (req, res) => {
       return res.json({ success: false, message: 'This mobile number is not registered with your account. Please contact IT support.' });
     }
     // Phase 1: simulate OTP dispatch
-    res.json({ success: true, message: 'OTP sent successfully.', maskedMobile: `+968 ${cleaned.substring(0, 4).replace(/./g, '●')} ${cleaned.substring(4, 7).replace(/./g, '●')}${cleaned.substring(7)}` });
+    res.json({ success: true, message: 'Password reset successful.', maskedMobile: `+968 ${cleaned.substring(0, 4).replace(/./g, '●')} ${cleaned.substring(4, 7).replace(/./g, '●')}${cleaned.substring(7)}` });
   }, delay);
 });
 
-// Simulate OTP validation
-app.post('/api/verify/otp', (req, res) => {
-  const { otp } = req.body;
-  const testOtp = process.env.TEST_OTP || '123456';
-  const delay = parseInt(process.env.VERIFY_DELAY) || 1500;
+// --- Admin Translation Routes ---
 
-  setTimeout(() => {
-    if (!otp || otp.length !== 6) {
-      return res.json({ success: false, message: 'Please enter a valid 6-digit OTP.' });
+const AR_JSON_PATH = path.join(__dirname, 'public', 'locales', 'ar.json');
+const ADMIN_PIN = process.env.ADMIN_PIN || '741369';
+
+// Simple per-IP session tracked in memory (no express-session dependency needed)
+const adminSessions = new Map();
+
+function isAdminAuthed(req) {
+  const ip = req.ip;
+  const session = adminSessions.get(ip);
+  if (!session) return false;
+  // 4-hour expiry
+  if (Date.now() - session.ts > 4 * 60 * 60 * 1000) { adminSessions.delete(ip); return false; }
+  return true;
+}
+
+// GET /admin/translations — show login or editor
+app.get('/admin/translations', (req, res) => {
+  if (!isAdminAuthed(req)) {
+    return res.render('admin/login', { error: '' });
+  }
+  const enData = getEnTranslations();
+  let arData = {};
+  try { arData = JSON.parse(fs.readFileSync(AR_JSON_PATH, 'utf8')); } catch (e) { /* empty */ }
+  res.render('admin/translations', { en: enData, ar: arData });
+});
+
+// POST /admin/login — validate PIN
+app.post('/admin/login', (req, res) => {
+  const { pin } = req.body;
+  if (pin === ADMIN_PIN) {
+    adminSessions.set(req.ip, { ts: Date.now() });
+    return res.redirect('/admin/translations');
+  }
+  res.render('admin/login', { error: 'Incorrect PIN. Please try again.' });
+});
+
+// POST /admin/save-translations — write ar.json
+app.post('/admin/save-translations', (req, res) => {
+  if (!isAdminAuthed(req)) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+  try {
+    const data = req.body;
+    if (!data || typeof data !== 'object' || Array.isArray(data)) {
+      return res.status(400).json({ error: 'Invalid payload' });
     }
-    if (otp === testOtp) {
-      res.json({ success: true, message: 'OTP verified successfully.' });
-    } else {
-      res.json({ success: false, message: 'Incorrect OTP. Please try again.' });
-    }
-  }, delay);
+    fs.writeFileSync(AR_JSON_PATH, JSON.stringify(data, null, 2), 'utf8');
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to write file' });
+  }
 });
 
-// Simulate OTP resend
-app.post('/api/resend-otp', (req, res) => {
-  const delay = parseInt(process.env.VERIFY_DELAY) || 1500;
-  setTimeout(() => {
-    res.json({ success: true, message: 'A new OTP has been sent to your mobile.' });
-  }, delay);
-});
+/** Extract English translations from i18n.js for the admin editor */
+function getEnTranslations() {
+  return {
+    'nav.title': 'Dhofar University',
+    'nav.subtitle': 'Kiosk Experience',
+    'nav.reset': 'Email Password Reset',
+    'splash.welcome': 'Welcome,',
+    'splash.student': 'Student.',
+    'splash.subtitle': "Forgot your Email Password? Let's get you back online.",
+    'splash.status': 'System Status: Ready',
+    'splash.start': 'Start Password Reset',
+    'splash.tap': 'Tap anywhere to begin',
+    'splash.location.label': 'Kiosk Location',
+    'splash.location.value': 'Main Admin Building',
+    'splash.available.label': 'Available',
+    'splash.available.value': '24/7 Self-Service',
+    'onboard.s1.title': "We'll Verify Your Identity",
+    'onboard.s1.desc': 'Have your Student Card and Date of Birth ready.',
+    'onboard.s1.card': 'Student Card',
+    'onboard.s1.dob': 'Date of Birth',
+    'onboard.s1.time': 'Takes approximately 3 minutes',
+    'onboard.s2.title': 'Additional Verification Required',
+    'onboard.s2.desc': "You'll also need your Civil ID and registered mobile number.",
+    'onboard.s2.civil': 'Civil ID',
+    'onboard.s2.mobile': 'Mobile Number',
+    'onboard.s3.title': "Your New Password Will Be SMS'd to You",
+    'onboard.s3.desc': 'Once verified, a new secure password is generated and sent to your mobile instantly.',
+    'onboard.s3.sms': 'Password delivered via SMS',
+    'onboard.s3.security': 'Your password is never shown on screen',
+    'onboard.back': 'Back',
+    'onboard.next': 'Next',
+    'onboard.getStarted': 'Get Started',
+    'onboard.skip': 'Skip Onboarding',
+    'sid.title': 'Enter Your Student ID',
+    'sid.subtitle': 'Your Student ID is printed on your university card',
+    'sid.placeholder': 'Enter Student ID',
+    'sid.status': 'Awaiting Student ID',
+    'sid.verify': 'Verify & Continue',
+    'sid.verifying': 'Verifying…',
+    'sid.back': 'Back',
+    'sid.cancel': 'Cancel & Exit',
+    'sid.whatNeed': "First time? See what you'll need",
+    'dob.title': 'Enter Your Date of Birth',
+    'dob.subtitle': 'Scroll each column to select your date',
+    'dob.day': 'Day',
+    'dob.month': 'Month',
+    'dob.year': 'Year',
+    'dob.select': 'Select your date',
+    'dob.scroll': 'Scroll each column to select',
+    'dob.verify': 'Verify & Continue',
+    'dob.verifying': 'Verifying…',
+    'cid.title': 'Enter Your Civil ID',
+    'cid.subtitle': 'Your Civil ID is your national identity card number',
+    'cid.placeholder': 'Enter Civil ID Number',
+    'cid.status': 'Awaiting Civil ID',
+    'cid.verify': 'Verify & Continue',
+    'cid.verifying': 'Verifying…',
+    'mob.title': 'Enter Your Registered Mobile Number',
+    'mob.subtitle': 'Enter the mobile number registered with the university',
+    'mob.status': 'Awaiting mobile number',
+    'mob.send': 'Send Password',
+    'mob.sending': 'Resetting Password…',
+    'shared.attempts': 'Attempts remaining:',
+    'shared.locked': 'Too many failed attempts. Please visit the IT Help Desk for assistance.',
+    'shared.verifyAs': 'Verifying as',
+    'shared.cancelTitle': 'Are you sure you want to cancel?',
+    'shared.cancelDesc': 'All progress will be lost.',
+    'shared.cancelNo': 'No, Continue',
+    'shared.cancelYes': 'Yes, Cancel',
+    'success.title': 'Password Reset Successful!',
+    'success.subtitle': 'Your new password has been generated and saved.',
+    'success.format': 'New Password Format',
+    'success.formatDesc': 'Where XXXXX is a 5-digit random number',
+    'success.sms': 'Password Sent via SMS',
+    'success.smsTo': 'Sent to',
+    'success.next': 'Next Steps',
+    'success.step1': 'Check your SMS for the new password',
+    'success.step2': 'Use this password to log in to your email, ERP, or Wi-Fi',
+    'success.step3': 'You may change your password after logging in',
+    'success.timer': 'This screen will reset in',
+    'success.done': 'Finish & Return to Home',
+    'success.privacy': 'For your security, please do not share your password with anyone.',
+    'success.qr': 'Scan to change password from your phone',
+    'idle.title': 'Are you still there?',
+    'idle.desc': 'Session resets in',
+    'idle.seconds': 'seconds',
+    'idle.dismiss': "I'm Still Here",
+    'footer.powered': 'Powered by Dhofar University | CNC Department',
+    'step.studentId': 'Student ID',
+    'step.dob': 'Date of Birth',
+    'step.civilId': 'Civil ID',
+    'step.mobile': 'Mobile',
+    'log.title': 'Activity Log',
+    'log.studentIdVerified': 'Student ID verified',
+    'log.dobVerified': 'Date of Birth verified',
+    'log.civilIdVerified': 'Civil ID verified',
+    'log.mobileVerified': 'Mobile number verified',
+    'a11y.highContrast': 'High Contrast',
+    'a11y.screenReader': 'Screen Reader',
+    'help.title': "What You'll Need",
+    'help.desc': 'Have these items ready before you start:',
+    'help.item1': 'Student ID Card',
+    'help.item1d': 'Your university student number',
+    'help.item2': 'Date of Birth',
+    'help.item2d': 'As registered with the university',
+    'help.item3': 'Civil ID Number',
+    'help.item3d': 'Your national identity card number',
+    'help.item4': 'Registered Mobile',
+    'help.item4d': 'To receive your new password via SMS',
+    'help.time': 'Takes approximately 3 minutes',
+    'help.gotIt': "Got It, Let's Go!",
+    'theme.toggle': 'Toggle Light/Dark Mode',
+    'theme.light': 'Light Mode',
+    'theme.dark': 'Dark Mode'
+  };
+}
 
 // Catch-all: redirect unknown routes to splash
 app.use((req, res) => {

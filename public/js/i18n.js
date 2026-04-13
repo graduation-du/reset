@@ -1,6 +1,7 @@
 /**
  * Internationalization (i18n) System — Arabic/English Toggle
  * Stores preference in localStorage. Uses data-i18n attributes for translation.
+ * Arabic strings are loaded dynamically from /locales/ar.json.
  */
 const I18N = (function () {
   const translations = {
@@ -148,150 +149,8 @@ const I18N = (function () {
       'theme.light': 'Light Mode',
       'theme.dark': 'Dark Mode',
     },
-    ar: {
-      // Navbar
-      'nav.title': 'جامعة ظفار',
-      'nav.subtitle': 'تجربة الكشك',
-      'nav.reset': 'إعادة تعيين كلمة مرور البريد',
-
-      // Splash
-      'splash.welcome': 'مرحباً،',
-      'splash.student': 'أيها الطالب.',
-      'splash.subtitle': 'هل نسيت كلمة مرور بريدك الإلكتروني؟ دعنا نساعدك.',
-      'splash.status': 'حالة النظام: جاهز',
-      'splash.start': 'بدء إعادة تعيين كلمة المرور',
-      'splash.tap': 'اضغط في أي مكان للبدء',
-      'splash.location.label': 'موقع الكشك',
-      'splash.location.value': 'مبنى الإدارة الرئيسي',
-      'splash.available.label': 'متاح',
-      'splash.available.value': 'خدمة ذاتية 24/7',
-
-      // Onboarding
-      'onboard.s1.title': 'سنتحقق من هويتك',
-      'onboard.s1.desc': 'جهّز <span class="text-secondary font-semibold">بطاقة الطالب</span> و<span class="text-secondary font-semibold">تاريخ الميلاد</span>. هذا يضمن أنك أنت فقط من يمكنه إعادة تعيين كلمة المرور.',
-      'onboard.s1.card': 'بطاقة الطالب',
-      'onboard.s1.dob': 'تاريخ الميلاد',
-      'onboard.s1.time': 'يستغرق حوالي 3 دقائق',
-      'onboard.s2.title': 'مطلوب تحقق إضافي',
-      'onboard.s2.desc': 'ستحتاج أيضاً إلى <span class="text-tertiary font-semibold">الهوية المدنية</span> و<span class="text-tertiary font-semibold">رقم الهاتف المسجل</span> لإكمال عملية التحقق.',
-      'onboard.s2.civil': 'الهوية المدنية',
-      'onboard.s2.mobile': 'رقم الهاتف',
-      'onboard.s3.title': 'سيتم إرسال كلمة المرور الجديدة عبر رسالة نصية',
-      'onboard.s3.desc': 'بعد التحقق، يتم إنشاء <span class="text-primary font-semibold">كلمة مرور آمنة جديدة</span> وإرسالها إلى هاتفك فوراً.',
-      'onboard.s3.sms': 'كلمة المرور ترسل عبر رسالة نصية',
-      'onboard.s3.security': 'لن تظهر كلمة المرور على الشاشة أبداً',
-      'onboard.back': 'رجوع',
-      'onboard.next': 'التالي',
-      'onboard.getStarted': 'ابدأ الآن',
-      'onboard.skip': 'تخطي التعريف',
-
-      // Student ID
-      'sid.title': 'أدخل رقم الطالب',
-      'sid.subtitle': 'رقم الطالب مطبوع على بطاقتك الجامعية',
-      'sid.placeholder': 'أدخل رقم الطالب',
-      'sid.status': 'في انتظار رقم الطالب',
-      'sid.verify': 'تحقق واستمر',
-      'sid.verifying': 'جارٍ التحقق…',
-      'sid.back': 'رجوع',
-      'sid.cancel': 'إلغاء والخروج',
-
-      // DOB
-      'dob.title': 'أدخل تاريخ ميلادك',
-      'dob.subtitle': 'مرر كل عمود لاختيار التاريخ',
-      'dob.day': 'اليوم',
-      'dob.month': 'الشهر',
-      'dob.year': 'السنة',
-      'dob.select': 'اختر التاريخ',
-      'dob.scroll': 'مرر كل عمود للاختيار',
-      'dob.verify': 'تحقق واستمر',
-      'dob.verifying': 'جارٍ التحقق…',
-
-      // Civil ID
-      'cid.title': 'أدخل رقم الهوية المدنية',
-      'cid.subtitle': 'رقم الهوية المدنية هو رقم بطاقتك الوطنية',
-      'cid.placeholder': 'أدخل رقم الهوية المدنية',
-      'cid.status': 'في انتظار الهوية المدنية',
-      'cid.verify': 'تحقق واستمر',
-      'cid.verifying': 'جارٍ التحقق…',
-
-      // Mobile
-      'mob.title': 'أدخل رقم هاتفك المسجل',
-      'mob.subtitle': 'أدخل رقم الهاتف المسجل لدى الجامعة',
-      'mob.status': 'في انتظار رقم الهاتف',
-      'mob.send': 'إرسال كلمة المرور',
-      'mob.sending': 'جارٍ إعادة تعيين كلمة المرور…',
-
-      // Shared
-      'shared.attempts': 'المحاولات المتبقية:',
-      'shared.locked': 'محاولات كثيرة فاشلة. يرجى زيارة مكتب دعم تكنولوجيا المعلومات.',
-      'shared.verifyAs': 'التحقق باسم',
-      'shared.cancelTitle': 'هل أنت متأكد أنك تريد الإلغاء؟',
-      'shared.cancelDesc': 'ستفقد كل التقدم.',
-      'shared.cancelNo': 'لا، استمر',
-      'shared.cancelYes': 'نعم، إلغاء',
-
-      // Success
-      'success.title': 'تم إعادة تعيين كلمة المرور بنجاح!',
-      'success.subtitle': 'تم إنشاء كلمة المرور الجديدة وحفظها.',
-      'success.format': 'صيغة كلمة المرور الجديدة',
-      'success.formatDesc': 'حيث XXXXX هو رقم عشوائي من 5 أرقام',
-      'success.sms': 'تم إرسال كلمة المرور عبر رسالة نصية',
-      'success.smsTo': 'أرسلت إلى',
-      'success.next': 'الخطوات التالية',
-      'success.step1': 'تحقق من رسائلك النصية للحصول على كلمة المرور الجديدة',
-      'success.step2': 'استخدم كلمة المرور لتسجيل الدخول إلى بريدك أو ERP أو Wi-Fi',
-      'success.step3': 'يمكنك تغيير كلمة المرور بعد تسجيل الدخول',
-      'success.timer': 'ستتم إعادة تعيين الشاشة في',
-      'success.done': 'إنهاء والعودة للرئيسية',
-      'success.privacy': 'لأمانك، يرجى عدم مشاركة كلمة المرور مع أي شخص.',
-      'success.qr': 'امسح لتغيير كلمة المرور من هاتفك',
-
-      // Idle
-      'idle.title': 'هل أنت لا تزال هنا؟',
-      'idle.desc': 'ستتم إعادة تعيين الجلسة في',
-      'idle.seconds': 'ثوانٍ',
-      'idle.dismiss': 'أنا لا أزال هنا',
-
-      // Footer
-      'footer.powered': 'مقدم من جامعة ظفار | قسم شبكات الحاسب',
-
-      // Progress Steps
-      'step.studentId': 'رقم الطالب',
-      'step.dob': 'تاريخ الميلاد',
-      'step.civilId': 'الهوية المدنية',
-      'step.mobile': 'الهاتف',
-
-      // Activity Log
-      'log.title': 'سجل النشاط',
-      'log.studentIdVerified': 'تم التحقق من رقم الطالب',
-      'log.dobVerified': 'تم التحقق من تاريخ الميلاد',
-      'log.civilIdVerified': 'تم التحقق من الهوية المدنية',
-      'log.mobileVerified': 'تم التحقق من رقم الهاتف',
-
-      // Accessibility
-      'a11y.highContrast': 'تباين عالي',
-      'a11y.screenReader': 'قارئ الشاشة',
-
-      // Help Modal
-      'sid.whatNeed': 'أول مرة؟ اعرف ما تحتاجه',
-      'help.title': 'ما الذي ستحتاجه',
-      'help.desc': 'جهّز هذه العناصر قبل البدء:',
-      'help.item1': 'بطاقة الطالب',
-      'help.item1d': 'رقم الطالب الجامعي',
-      'help.item2': 'تاريخ الميلاد',
-      'help.item2d': 'كما هو مسجل لدى الجامعة',
-      'help.item3': 'رقم الهوية المدنية',
-      'help.item3d': 'رقم بطاقة الهوية الوطنية',
-      'help.item4': 'الهاتف المسجل',
-      'help.item4d': 'لاستلام كلمة المرور عبر رسالة نصية',
-      'help.time': 'يستغرق حوالي 3 دقائق',
-      'help.gotIt': 'فهمت، لنبدأ!',
-
-      // Theme Toggle
-      'theme.toggle': 'تبديل الوضع الفاتح/الداكن',
-      'theme.light': 'الوضع الفاتح',
-      'theme.dark': 'الوضع الداكن',
-    }
+    // Arabic strings are loaded asynchronously from /locales/ar.json
+    ar: {}
   };
 
   let currentLang = localStorage.getItem('du-lang') || 'en';
@@ -334,21 +193,36 @@ const I18N = (function () {
     setLang(currentLang === 'en' ? 'ar' : 'en');
   }
 
+  /** Fetch Arabic translations from /locales/ar.json (cache-busted) */
+  function loadArabic() {
+    return fetch('/locales/ar.json?v=' + Date.now())
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        translations.ar = data;
+        applyTranslations();
+      })
+      .catch(function () { /* ar.json unavailable — English fallback */ });
+  }
+
+  /** Reload Arabic translations (called from admin after saving) */
+  function reload() { return loadArabic(); }
+
   // Initial apply on DOM ready
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => {
-      document.documentElement.lang = currentLang;
-      document.documentElement.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
-      applyTranslations();
-    });
-  } else {
+  function _init() {
     document.documentElement.lang = currentLang;
     document.documentElement.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
-    applyTranslations();
+    loadArabic();               // async — will re-apply when fetched
+    applyTranslations();        // immediate pass with English fallback
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', _init);
+  } else {
+    _init();
   }
 
   // Re-apply translations after each AJAX page swap
   document.addEventListener('page:enter', applyTranslations);
 
-  return { t, getLang, setLang, toggleLang, applyTranslations };
+  return { t, getLang, setLang, toggleLang, applyTranslations, reload };
 })();

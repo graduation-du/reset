@@ -23,8 +23,8 @@
 | Field | Details |
 |-------|---------|
 | **Document Title** | E-Kiosk Active Directory Password Reset System — PRD |
-| **Version** | 1.0 — Phase 1 Draft |
-| **Status** | Pending Stakeholder Approval |
+| **Version** | 1.1 — Phase 1 Revised |
+| **Status** | Active Development |
 | **Date** | April 2026 |
 | **Author** | Technical Project Manager / Product Owner |
 | **Institution** | Dhofar University |
@@ -36,6 +36,7 @@
 |---------|------|--------|---------|
 | 0.1 | March 2026 | PM/PO | Initial draft — scope definition |
 | 1.0 | April 2026 | PM/PO | Phase 1 full specification — submitted for stakeholder review |
+| 1.1 | April 2026 | PM/PO | Removed OTP screen (Screen 7) from Phase 1 scope; added FR-40 Admin Translation Editor; updated flow diagram and acceptance criteria |
 | 2.0 | TBD | TBD | Phase 2 backend integrations — to be authored post-Phase 1 approval |
 
 ---
@@ -92,13 +93,13 @@ The project is structured into two discrete phases to allow stakeholder review a
 │                     PHASE 1                         │
 │          UI/UX Design & Frontend Flow               │
 │                                                     │
-│  • All 8 kiosk screens built and navigable          │
+│  • All 7 kiosk screens built and navigable          │
 │  • Touch-optimised, responsive Tailwind CSS UI      │
 │  • Simulated verification at every step             │
-│  • Simulated OTP flow                               │
 │  • Simulated success + password display             │
 │  • Idle timeout and session reset logic             │
 │  • Node.js server routing and screen serving        │
+│  • Admin Translation Editor (AR/EN live editing)    │
 └─────────────────────────────────────────────────────┘
                           │
                           ▼  (Stakeholder Sign-Off)
@@ -119,11 +120,12 @@ The project is structured into two discrete phases to allow stakeholder review a
 
 - Design and implementation of all 8 screens as defined in Section 6
 - Touch-screen-optimised UI using Tailwind CSS with large tap targets, readable fonts, and accessible colour contrast
-- Client-side input validation for all form fields (Student ID, DOB, Civil ID, Mobile Number, OTP)
-- Simulated backend responses for all verification steps (ID check, DOB check, Civil ID check, mobile number check, OTP validation)
-- Idle timeout detection with automatic session reset to the Splash Screen
-- Node.js application serving all screens with Express.js routing
-- Integration of existing design assets (splash screen visuals, branding, imagery) provided by the stakeholder
+  •  Client-side input validation for all form fields (Student ID, DOB, Civil ID, Mobile Number)
+  - Simulated backend responses for all verification steps (ID check, DOB check, Civil ID check, mobile number check)
+  - Idle timeout detection with automatic session reset to the Splash Screen
+  - Node.js application serving all screens with Express.js routing
+  - Integration of existing design assets (splash screen visuals, branding, imagery) provided by the stakeholder
+  - **Admin Translation Editor** — PIN-protected web page for editing Arabic translations live without code changes
 - Deployment of the Phase 1 build to the VPS/Plesk Windows server for review
 
 ### 3.3 Phase 2 — Out of Scope for Phase 1
@@ -183,8 +185,8 @@ The project is structured into two discrete phases to allow stakeholder review a
 │   │   GET  /verify/dob        → DOB Input               │    │
 │   │   GET  /verify/civil-id   → Civil ID Input          │    │
 │   │   GET  /verify/mobile     → Mobile Number Input     │    │
-│   │   GET  /verify/otp        → OTP Verification        │    │
 │   │   GET  /success           → Success Screen          │    │
+│   │   GET  /admin/translations → Translation Editor     │    │
 │   │                                                     │    │
 │   │   POST /api/verify/*      → Simulated responses     │    │
 │   │                             (Phase 1)               │    │
@@ -285,16 +287,10 @@ Node.js App
 │  6. MOBILE NO.  │  ◄── Enter registered mobile; simulate verification
 │     INPUT       │
 └────────┬────────┘
-         │ Mobile Verified ✓ / OTP simulated as sent
+         │ Mobile Verified ✓
          ▼
 ┌─────────────────┐
-│  7. OTP         │  ◄── Enter 6-digit OTP; simulate validation
-│  VERIFICATION   │
-└────────┬────────┘
-         │ OTP Valid ✓
-         ▼
-┌─────────────────┐
-│  8. SUCCESS &   │  ◄── Display generated password; explain delivery
+│  7. SUCCESS &   │  ◄── Display generated password; explain delivery
 │  CONFIRMATION   │
 └────────┬────────┘
          │ Auto-timeout (30 seconds) or "Done" tap
@@ -482,8 +478,8 @@ Node.js App
 | Number Masking (optional) | After entry, partially mask the number for confirmation display: e.g., `+968 ●●●● ●321` |
 | Primary Action Button | "Send OTP" |
 | Back Button | Returns to Screen 5 |
-| Loading State | "Sending OTP…" with spinner after tap |
-| Success Transition | Navigate to Screen 7 with a brief toast/notification: _"OTP sent to +968 ●●●● ●321"_ |
+| Loading State | "Verifying mobile…" with spinner after tap |
+| Success Transition | Navigate to Screen 7 (Success) |
 | Error Message | _"This mobile number is not registered with your account. Please contact IT support."_ |
 
 **Client-Side Validation:**
@@ -493,48 +489,11 @@ Node.js App
 | Empty input | Block; required message |
 | Non-numeric | Reject inline |
 | Incorrect length | Omani mobile numbers: 8 digits after `+968`; validate length |
-| Simulated result | Any validly formatted mobile number passes; OTP simulated as sent |
-
-**Phase 1 Simulation Note:** In Phase 1, no real SMS is sent. The system simulates dispatch and navigates to the OTP screen. A hardcoded test OTP (e.g., `123456`) is used for Phase 1 validation.
+| Simulated result | Any validly formatted mobile number passes; navigates to Success screen |
 
 ---
 
-#### SCREEN 7 — OTP Verification
-
-**Route:** `GET /verify/otp`
-**Purpose:** Confirm the student has access to the registered mobile number by entering the OTP received via SMS.
-
-**UI/UX Requirements:**
-
-| Element | Specification |
-|---------|--------------|
-| Screen Title | "Enter the OTP Sent to Your Mobile" |
-| Sub-heading | Masked mobile number confirmation: _"A 6-digit code was sent to +968 ●●●● ●321"_ |
-| OTP Input | 6 individual single-digit boxes (standard OTP UI pattern); auto-advance cursor on each digit entry; paste support |
-| OSK | Numeric pad only |
-| OTP Expiry Timer | Visible countdown timer (e.g., 5:00 minutes); shown below OTP boxes; timer ticks down in real time |
-| Resend OTP | "Resend OTP" button — disabled until timer reaches 0:00; re-activates on expiry |
-| Resend Limit | Maximum 3 resend attempts per session; after limit show: _"Please visit the IT Help Desk for further assistance."_ |
-| Primary Action Button | "Verify OTP" — activates only when all 6 digits are entered |
-| Back Button | Returns to Screen 6 (clears OTP entry) |
-| Loading State | "Verifying…" spinner |
-| Error State | Red border on all boxes; _"Incorrect OTP. Please try again."_; remaining attempts counter shown |
-| Expiry State | If timer reaches 0:00 before submission: grey out boxes, show _"OTP expired. Please request a new code."_; auto-enable Resend button |
-| Max Failed Attempts | 3 incorrect OTP attempts → lock session, show IT Help Desk message |
-
-**Client-Side Validation:**
-
-| Rule | Behaviour |
-|------|-----------|
-| Incomplete (< 6 digits) | "Verify" button remains disabled |
-| Non-numeric | Rejected at input level |
-| Phase 1 test OTP | Hardcoded value (e.g., `123456`) passes; any other value triggers simulated failure |
-
-**UX Note:** The 6-box OTP input pattern is well-understood from banking and app experiences. The individual boxes provide clear affordance for touch entry and make the input count visually clear to the student.
-
----
-
-#### SCREEN 8 — Success & Confirmation Screen
+#### SCREEN 7 — Success & Confirmation Screen
 
 **Route:** `GET /success`
 **Purpose:** Inform the student that their password has been successfully reset, display the new password format, and explain what to do next.
@@ -595,24 +554,20 @@ The actual generated password value must **never be displayed on screen**. The k
 | Requirement ID | Requirement | Priority |
 |---------------|-------------|---------|
 | FR-07 | All text inputs must display a suitable on-screen virtual keyboard (OSK) automatically on focus | Must Have |
-| FR-08 | Numeric-only fields (Civil ID, Mobile, OTP) must show a numeric OSK pad | Must Have |
+| FR-08 | Numeric-only fields (Civil ID, Mobile) must show a numeric OSK pad | Must Have |
 | FR-09 | All input fields must display inline validation errors without a full page reload | Must Have |
 | FR-10 | No form submission must be possible while required fields are empty or contain invalid data | Must Have |
 | FR-11 | The DOB selector must use a touch-optimised wheel/drum picker, not a native browser date input | Must Have |
-| FR-12 | The OTP input must use 6 individual single-digit boxes with auto-advance between them | Must Have |
-| FR-13 | The OTP "Verify" button must remain disabled until all 6 OTP digits are entered | Must Have |
 
 ### 7.3 Simulated Verification Logic (Phase 1)
 
 | Requirement ID | Requirement | Simulation Behaviour |
 |---------------|-------------|---------------------|
-| FR-14 | Student ID verification | Any correctly formatted ID → success after 1.5s delay |
-| FR-15 | DOB verification | Any complete, past date → success after 1.5s delay |
-| FR-16 | Civil ID verification | Any correctly formatted Civil ID → success after 1.5s delay |
-| FR-17 | Mobile number verification | Any valid-length mobile number → success after 1.5s delay |
-| FR-18 | OTP dispatch simulation | Navigate to OTP screen; display confirmation toast |
-| FR-19 | OTP validation | Hardcoded test OTP (configurable in `.env`) → success; any other value → failure |
-| FR-20 | Failed attempt counter | Track failure count client-side; lock after 3 failures with IT Help Desk message |
+| FR-12 | Student ID verification | Any correctly formatted ID → success after 1.5s delay |
+| FR-13 | DOB verification | Any complete, past date → success after 1.5s delay |
+| FR-14 | Civil ID verification | Any correctly formatted Civil ID → success after 1.5s delay |
+| FR-15 | Mobile number verification | Any valid-length mobile number → success after 1.5s delay; navigate to Success |
+| FR-16 | Failed attempt counter | Track failure count client-side; lock after 3 failures with IT Help Desk message |
 
 ### 7.4 Session & Timeout Management
 
@@ -621,8 +576,7 @@ The actual generated password value must **never be displayed on screen**. The k
 | FR-21 | Idle timeout of 60 seconds must be active on all screens except the Splash Screen | Must Have |
 | FR-22 | A 10-second countdown warning overlay must appear before session reset | Must Have |
 | FR-23 | On session reset (timeout or cancel), all form data must be cleared | Must Have |
-| FR-24 | The OTP countdown timer must be implemented as a real-time client-side countdown | Must Have |
-| FR-25 | The Success Screen auto-reset timer must count down visibly and return to Splash | Must Have |
+| FR-24 | The Success Screen auto-reset timer must count down visibly and return to Splash | Must Have |
 
 ### 7.5 UI/UX Standards
 
@@ -780,7 +734,7 @@ The following criteria must be met for Phase 1 to be considered complete and rea
 
 | # | Criterion | Pass Condition |
 |---|-----------|----------------|
-| AC-01 | All 8 screens are implemented and navigable | Each screen renders correctly at kiosk resolution with no broken layouts |
+| AC-01 | All 7 screens are implemented and navigable | Each screen renders correctly at kiosk resolution with no broken layouts |
 | AC-02 | Existing splash screen design assets are integrated | Splash screen matches approved design assets exactly |
 | AC-03 | University branding is consistent across all screens | Logo, colours, and typography match the university brand guide on every screen |
 | AC-04 | Onboarding slides display correct content | All 3 onboarding slides render with correct text, icons, and navigation |
@@ -803,36 +757,98 @@ The following criteria must be met for Phase 1 to be considered complete and rea
 | AC-11 | DOB picker is touch-friendly and functional | A tester can select a complete date using touch on the kiosk device |
 | AC-12 | Civil ID accepts only numeric input | Non-numeric characters cannot be entered into the Civil ID field |
 | AC-13 | Mobile number length is validated | Incorrect-length mobile number shows error before POST |
-| AC-14 | OTP input auto-advances through 6 boxes | Entering a digit in box N automatically focuses box N+1 |
-| AC-15 | OTP "Verify" button is disabled with < 6 digits | Button is non-interactive until all 6 boxes are filled |
 
 ### 10.4 Simulation & Logic
 
 | # | Criterion | Pass Condition |
 |---|-----------|----------------|
-| AC-16 | Simulated verifications succeed with valid input | Correctly formatted inputs on Screens 3–6 produce a loading state then navigate to the next screen |
-| AC-17 | Simulated verification failure shows error state | An empty or malformed input on Screens 3–6 shows the correct inline error |
-| AC-18 | 3-attempt lock engages correctly | Three consecutive failed attempts on any verification screen locks that step and displays the IT Help Desk message |
-| AC-19 | OTP countdown timer runs and expires | Timer counts down from 5:00 to 0:00 accurately; "Resend OTP" activates on expiry |
-| AC-20 | Test OTP passes; incorrect OTP fails | Entering the configured test OTP navigates to Success; any other value shows OTP error |
-| AC-21 | Success screen does not display the actual password | Success screen shows only the password format (`St@XXXXX`) and the SMS notification message — no actual value |
+| AC-14 | Simulated verifications succeed with valid input | Correctly formatted inputs on Screens 3–6 produce a loading state then navigate to the next screen |
+| AC-15 | Simulated verification failure shows error state | An empty or malformed input on Screens 3–6 shows the correct inline error |
+| AC-16 | 3-attempt lock engages correctly | Three consecutive failed attempts on any verification screen locks that step and displays the IT Help Desk message |
+| AC-17 | Success screen does not display the actual password | Success screen shows only the password format (`St@XXXXX`) and the SMS notification message — no actual value |
 
 ### 10.5 Timeouts & Session Management
 
 | # | Criterion | Pass Condition |
 |---|-----------|----------------|
-| AC-22 | Idle timeout triggers warning overlay | After 60 seconds of inactivity on any screen (except Splash), the warning overlay appears |
-| AC-23 | Session resets after timeout warning | If no interaction occurs within the 10-second warning, the application resets to Splash and clears all data |
-| AC-24 | Touch during warning cancels reset | Tapping "I'm still here" (or anywhere on the overlay) dismisses the warning and resets the 60-second timer |
+| AC-18 | Idle timeout triggers warning overlay | After 60 seconds of inactivity on any screen (except Splash), the warning overlay appears |
+| AC-19 | Session resets after timeout warning | If no interaction occurs within the 10-second warning, the application resets to Splash and clears all data |
+| AC-20 | Touch during warning cancels reset | Tapping "I'm still here" (or anywhere on the overlay) dismisses the warning and resets the 60-second timer |
 
-### 10.6 Environment & Deployment
+### 10.6 Translation Admin
 
 | # | Criterion | Pass Condition |
 |---|-----------|----------------|
-| AC-25 | Application deploys successfully to VPS/Plesk | `npm start` (or PM2 equivalent) launches the application without errors on the Windows VPS |
-| AC-26 | Application renders correctly in Chromium kiosk mode | All screens render correctly when Chromium is launched in `--kiosk` mode pointed at the application URL |
-| AC-27 | Application is accessible from a kiosk terminal on the LAN | A kiosk device on the same network can access and run the full flow against the VPS-hosted application |
-| AC-28 | All environment variables are externalised | No hardcoded credentials, OTP values, or environment-specific URLs exist in the committed source code |
+| AC-21 | Admin page is accessible at `/admin/translations` | Navigating to the URL on a staff device shows the PIN login page |
+| AC-22 | Incorrect PIN is rejected | Entering a wrong PIN shows an error; the editor does not load |
+| AC-23 | Correct PIN shows the translation editor | Correct PIN renders the two-column EN/AR editor with all translation keys |
+| AC-24 | Arabic edits are saved to `ar.json` | Clicking "Save All" writes changes to `public/locales/ar.json` on the server |
+| AC-25 | Saved translations are reflected in the kiosk UI | After saving, returning to the kiosk and switching to Arabic shows the updated text (after page reload) |
+
+### 10.7 Environment & Deployment
+
+| # | Criterion | Pass Condition |
+|---|-----------|----------------|
+| AC-26 | Application deploys successfully to VPS/Plesk | `npm start` (or PM2 equivalent) launches the application without errors on the Windows VPS |
+| AC-27 | Application renders correctly in Chromium kiosk mode | All screens render correctly when Chromium is launched in `--kiosk` mode pointed at the application URL |
+| AC-28 | Application is accessible from a kiosk terminal on the LAN | A kiosk device on the same network can access and run the full flow against the VPS-hosted application |
+| AC-29 | All environment variables are externalised | No hardcoded credentials or environment-specific URLs exist in the committed source code |
+
+---
+
+---
+
+## 11. Translation Admin Panel
+
+### 11.1 Overview
+
+To support ongoing maintenance of the Arabic translations without code changes, a PIN-protected Translation Admin panel is provided. This feature is intended for use by a designated translator (Arabic-language resource) on a staff laptop or tablet — **not** on the kiosk device itself.
+
+All Arabic UI strings are stored in `public/locales/ar.json` on the server. The admin panel reads this file and allows in-browser editing, then writes the updated file back to disk on save.
+
+### 11.2 Access & Authentication
+
+| Item | Detail |
+|------|--------|
+| **URL** | `GET /admin/translations` |
+| **Access control** | 6-digit numeric PIN stored in `.env` as `ADMIN_PIN` |
+| **Session** | PIN validated server-side via Express session; editor only accessible after correct PIN entry |
+| **Not for kiosk** | This URL is not linked from the kiosk UI; intended for staff network access only |
+
+### 11.3 Login Page (`views/admin/login.ejs`)
+
+- Full-page, modern, responsive design suitable for laptop/tablet
+- University branding (logo, colours)
+- Numeric PIN input (6 digits) with show/hide toggle
+- Inline error on wrong PIN; no lockout mechanism in Phase 1
+
+### 11.4 Translation Editor (`views/admin/translations.ejs`)
+
+| Element | Detail |
+|---------|--------|
+| **Layout** | Two-column table: English (read-only, left) \| Arabic (editable `<textarea dir="rtl">`, right) |
+| **Grouping** | Keys grouped by screen/section with collapsible section headers |
+| **Save** | "Save All" button — `POST /admin/save-translations` — writes updated `ar.json` to disk |
+| **Feedback** | Success/error toast notification after save |
+| **Reload hint** | Notice that kiosk must reload the page to pick up new translations |
+
+### 11.5 Server Routes
+
+| Route | Method | Description |
+|-------|--------|-------------|
+| `/admin/translations` | GET | Render login page (unauthenticated) or editor (authenticated) |
+| `/admin/login` | POST | Validate PIN; set session flag; redirect to editor |
+| `/admin/save-translations` | POST | Validate session; write received JSON body to `public/locales/ar.json` |
+
+### 11.6 Functional Requirements
+
+| Requirement ID | Requirement | Priority |
+|---------------|-------------|---------|
+| FR-40 | Admin translation editor must be accessible at `/admin/translations` on staff network | Must Have |
+| FR-41 | Admin login must validate PIN server-side before granting access | Must Have |
+| FR-42 | All Arabic UI strings must be loaded from `public/locales/ar.json` at runtime | Must Have |
+| FR-43 | Saving translations must write the updated file to disk without requiring a server restart | Must Have |
+| FR-44 | Kiosk UI must pick up updated translations on next page load (i18n fetches ar.json at startup) | Must Have |
 
 ---
 

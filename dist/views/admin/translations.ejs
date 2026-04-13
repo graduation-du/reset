@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Translation Editor — Dhofar University</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Cairo:wght@400;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0a0e1a;
+      --surface: #111727;
+      --card: #141926;
+      --border: #1e2740;
+      --accent: #02e600;
+      --accent-dim: #01a300;
+      --blue: #5ed4ff;
+      --pink: #ffabf3;
+      --text: #e8eaf0;
+      --text-muted: #7b8394;
+      --error: #ff4d6a;
+      --glow: rgba(2, 230, 0, 0.12);
+    }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100dvh;
+    }
+
+    /* Top bar */
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 14px 24px;
+      background: rgba(10, 14, 26, .85);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+    }
+    .topbar-logo {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), var(--blue));
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .topbar-logo svg { width: 18px; height: 18px; fill: #0a0e1a; }
+    .topbar h1 { font-size: 1.125rem; font-weight: 700; }
+    .topbar-actions { margin-left: auto; display: flex; gap: 10px; align-items: center; }
+    .topbar-info {
+      font-size: .75rem;
+      color: var(--text-muted);
+      padding: 5px 12px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      display: none;
+    }
+    @media (min-width: 768px) { .topbar-info { display: block; } }
+
+    .btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 10px 20px;
+      font-size: .8125rem;
+      font-weight: 600;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: opacity .15s, transform .1s;
+    }
+    .btn:active { transform: scale(.97); }
+    .btn-accent {
+      color: #0a0e1a;
+      background: linear-gradient(135deg, var(--accent), var(--accent-dim));
+    }
+    .btn-accent:disabled { opacity: .4; cursor: not-allowed; }
+    .btn-ghost {
+      color: var(--text-muted);
+      background: transparent;
+      border: 1px solid var(--border);
+    }
+    .btn-ghost:hover { color: var(--text); border-color: #2e3a56; }
+
+    /* Main layout */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 24px 16px 80px;
+    }
+
+    /* Search bar */
+    .search-wrap {
+      position: relative;
+      margin-bottom: 24px;
+    }
+    .search-wrap svg {
+      position: absolute;
+      left: 14px; top: 50%;
+      transform: translateY(-50%);
+      width: 18px; height: 18px;
+      fill: var(--text-muted);
+      pointer-events: none;
+    }
+    .search-input {
+      width: 100%;
+      padding: 12px 14px 12px 42px;
+      font-size: .875rem;
+      color: var(--text);
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      outline: none;
+      transition: border-color .2s;
+    }
+    .search-input::placeholder { color: var(--text-muted); }
+    .search-input:focus { border-color: var(--accent); }
+
+    /* Section group */
+    .section {
+      margin-bottom: 16px;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+      background: var(--card);
+    }
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 20px;
+      background: var(--surface);
+      cursor: pointer;
+      user-select: none;
+      transition: background .15s;
+    }
+    .section-header:hover { background: #161d30; }
+    .section-chevron {
+      width: 20px; height: 20px;
+      fill: var(--text-muted);
+      transition: transform .25s;
+      flex-shrink: 0;
+    }
+    .section.collapsed .section-chevron { transform: rotate(-90deg); }
+    .section-title {
+      font-size: .8125rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      color: var(--blue);
+    }
+    .section-count {
+      font-size: .7rem;
+      color: var(--text-muted);
+      margin-left: auto;
+    }
+    .section-body { display: block; }
+    .section.collapsed .section-body { display: none; }
+
+    /* Key-value row */
+    .row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      padding: 12px 20px;
+      border-top: 1px solid var(--border);
+      align-items: start;
+    }
+    @media (max-width: 640px) {
+      .row { grid-template-columns: 1fr; gap: 8px; }
+    }
+    .row:first-child { border-top: none; }
+    .key-label {
+      font-size: .7rem;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+      font-family: 'SF Mono', 'Cascadia Code', 'Consolas', monospace;
+      word-break: break-all;
+    }
+    .en-text {
+      font-size: .8125rem;
+      color: var(--text);
+      line-height: 1.5;
+      padding: 10px 14px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      min-height: 42px;
+    }
+    .ar-textarea {
+      width: 100%;
+      font-family: 'Cairo', 'Inter', sans-serif;
+      font-size: .875rem;
+      color: var(--text);
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 14px;
+      resize: vertical;
+      min-height: 42px;
+      outline: none;
+      direction: rtl;
+      text-align: right;
+      line-height: 1.5;
+      transition: border-color .2s, box-shadow .2s;
+    }
+    .ar-textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--glow);
+    }
+    .ar-textarea.dirty {
+      border-color: #e6a800;
+    }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      padding: 14px 28px;
+      border-radius: 14px;
+      font-size: .875rem;
+      font-weight: 600;
+      z-index: 100;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity .3s, transform .3s;
+    }
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+    .toast-success { background: var(--accent); color: #0a0e1a; }
+    .toast-error { background: var(--error); color: #fff; }
+
+    /* Stats bar */
+    .stats-bar {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+    .stat-chip {
+      font-size: .75rem;
+      color: var(--text-muted);
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 6px 12px;
+    }
+    .stat-chip strong { color: var(--text); }
+  </style>
+</head>
+<body>
+  <!-- Top Bar -->
+  <div class="topbar">
+    <div class="topbar-logo">
+      <svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+    </div>
+    <h1>Translation Editor</h1>
+    <div class="topbar-info">Arabic &middot; <span id="key-count">0</span> keys</div>
+    <div class="topbar-actions">
+      <button class="btn btn-ghost" id="collapse-all-btn" title="Collapse / expand all sections">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6z"/></svg>
+        Toggle Sections
+      </button>
+      <button class="btn btn-accent" id="save-btn" disabled>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V7l-4-4zm-5 16a3 3 0 1 1 0-6 3 3 0 0 1 0 6zm3-10H5V5h10v4z"/></svg>
+        Save All
+      </button>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="container">
+    <div class="search-wrap">
+      <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.47 6.47 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zM9.5 14C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+      <input class="search-input" type="text" id="search" placeholder="Search keys or values…" />
+    </div>
+
+    <div class="stats-bar">
+      <div class="stat-chip">Total keys: <strong id="stat-total">0</strong></div>
+      <div class="stat-chip">Unsaved changes: <strong id="stat-dirty">0</strong></div>
+    </div>
+
+    <div id="editor"></div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast toast-success" id="toast-success">Translations saved successfully!</div>
+  <div class="toast toast-error" id="toast-error">Failed to save. Please try again.</div>
+
+  <script>
+    (function () {
+      /* ---- Data from server ---- */
+      var enData = <%- JSON.stringify(en) %>;
+      var arData = <%- JSON.stringify(ar) %>;
+
+      /* ---- Group keys by prefix ---- */
+      var groups = {};
+      var groupOrder = [];
+      Object.keys(enData).forEach(function (key) {
+        var prefix = key.split('.')[0];
+        if (!groups[prefix]) { groups[prefix] = []; groupOrder.push(prefix); }
+        groups[prefix].push(key);
+      });
+
+      var sectionLabels = {
+        nav: 'Navbar', splash: 'Splash Screen', onboard: 'Onboarding',
+        sid: 'Student ID', dob: 'Date of Birth', cid: 'Civil ID',
+        mob: 'Mobile Number', shared: 'Shared / Dialogs', success: 'Success Screen',
+        idle: 'Idle Timeout', footer: 'Footer', step: 'Progress Steps',
+        log: 'Activity Log', a11y: 'Accessibility', help: 'Help Modal', theme: 'Theme Toggle'
+      };
+
+      /* ---- Render ---- */
+      var editor = document.getElementById('editor');
+      var dirtySet = new Set();
+      var textareaMap = {};
+
+      function render() {
+        editor.innerHTML = '';
+        groupOrder.forEach(function (prefix) {
+          var keys = groups[prefix];
+          var section = document.createElement('div');
+          section.className = 'section';
+          section.dataset.prefix = prefix;
+
+          var hdr = document.createElement('div');
+          hdr.className = 'section-header';
+          hdr.innerHTML =
+            '<svg class="section-chevron" viewBox="0 0 24 24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6z"/></svg>' +
+            '<span class="section-title">' + (sectionLabels[prefix] || prefix) + '</span>' +
+            '<span class="section-count">' + keys.length + ' keys</span>';
+          hdr.addEventListener('click', function () { section.classList.toggle('collapsed'); });
+          section.appendChild(hdr);
+
+          var body = document.createElement('div');
+          body.className = 'section-body';
+
+          keys.forEach(function (key) {
+            var row = document.createElement('div');
+            row.className = 'row';
+            row.dataset.key = key;
+
+            var enCol = document.createElement('div');
+            enCol.innerHTML = '<div class="key-label">' + escHtml(key) + '</div>' +
+              '<div class="en-text">' + escHtml(enData[key]) + '</div>';
+
+            var arCol = document.createElement('div');
+            var ta = document.createElement('textarea');
+            ta.className = 'ar-textarea';
+            ta.value = arData[key] || '';
+            ta.rows = 1;
+            ta.dataset.key = key;
+            ta.addEventListener('input', function () {
+              autoGrow(ta);
+              if (ta.value !== (arData[key] || '')) {
+                dirtySet.add(key);
+                ta.classList.add('dirty');
+              } else {
+                dirtySet.delete(key);
+                ta.classList.remove('dirty');
+              }
+              syncDirty();
+            });
+            textareaMap[key] = ta;
+            arCol.appendChild(ta);
+            row.appendChild(enCol);
+            row.appendChild(arCol);
+            body.appendChild(row);
+          });
+
+          section.appendChild(body);
+          editor.appendChild(section);
+        });
+
+        document.getElementById('key-count').textContent = Object.keys(enData).length;
+        document.getElementById('stat-total').textContent = Object.keys(enData).length;
+        // auto-grow all textareas
+        Object.values(textareaMap).forEach(autoGrow);
+      }
+
+      function escHtml(s) {
+        var d = document.createElement('div');
+        d.appendChild(document.createTextNode(s));
+        return d.innerHTML;
+      }
+
+      function autoGrow(ta) {
+        ta.style.height = 'auto';
+        ta.style.height = ta.scrollHeight + 'px';
+      }
+
+      function syncDirty() {
+        var n = dirtySet.size;
+        document.getElementById('stat-dirty').textContent = n;
+        document.getElementById('save-btn').disabled = n === 0;
+      }
+
+      /* ---- Search ---- */
+      document.getElementById('search').addEventListener('input', function () {
+        var q = this.value.toLowerCase();
+        var rows = editor.querySelectorAll('.row');
+        rows.forEach(function (row) {
+          var key = row.dataset.key;
+          var match = !q ||
+            key.toLowerCase().includes(q) ||
+            (enData[key] || '').toLowerCase().includes(q) ||
+            (textareaMap[key].value || '').toLowerCase().includes(q);
+          row.style.display = match ? '' : 'none';
+        });
+        // show/hide sections with no visible rows
+        editor.querySelectorAll('.section').forEach(function (sec) {
+          var visible = sec.querySelectorAll('.row:not([style*="display: none"])');
+          sec.style.display = visible.length ? '' : 'none';
+        });
+      });
+
+      /* ---- Collapse all toggle ---- */
+      var allCollapsed = false;
+      document.getElementById('collapse-all-btn').addEventListener('click', function () {
+        allCollapsed = !allCollapsed;
+        editor.querySelectorAll('.section').forEach(function (s) {
+          s.classList.toggle('collapsed', allCollapsed);
+        });
+      });
+
+      /* ---- Save ---- */
+      document.getElementById('save-btn').addEventListener('click', function () {
+        var btn = this;
+        btn.disabled = true;
+        btn.textContent = 'Saving…';
+
+        // Build updated ar object
+        var updated = {};
+        Object.keys(enData).forEach(function (key) {
+          updated[key] = textareaMap[key] ? textareaMap[key].value : (arData[key] || '');
+        });
+
+        fetch('/admin/save-translations', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(updated)
+        })
+        .then(function (r) {
+          if (!r.ok) throw new Error('Save failed');
+          return r.json();
+        })
+        .then(function () {
+          arData = updated;
+          dirtySet.clear();
+          Object.values(textareaMap).forEach(function (ta) { ta.classList.remove('dirty'); });
+          syncDirty();
+          showToast('success');
+          btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V7l-4-4zm-5 16a3 3 0 1 1 0-6 3 3 0 0 1 0 6zm3-10H5V5h10v4z"/></svg> Save All';
+        })
+        .catch(function () {
+          showToast('error');
+          btn.disabled = false;
+          btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V7l-4-4zm-5 16a3 3 0 1 1 0-6 3 3 0 0 1 0 6zm3-10H5V5h10v4z"/></svg> Save All';
+        });
+      });
+
+      /* ---- Toast ---- */
+      function showToast(type) {
+        var el = document.getElementById('toast-' + type);
+        el.classList.add('show');
+        setTimeout(function () { el.classList.remove('show'); }, 3000);
+      }
+
+      /* ---- Init ---- */
+      render();
+    })();
+  </script>
+</body>
+</html>

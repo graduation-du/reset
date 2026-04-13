@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Translation Admin — Dhofar University</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0a0e1a;
+      --card: #141926;
+      --border: #1e2740;
+      --accent: #02e600;
+      --accent-dim: #01a300;
+      --text: #e8eaf0;
+      --text-muted: #7b8394;
+      --error: #ff4d6a;
+      --glow: rgba(2, 230, 0, 0.15);
+    }
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100dvh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    /* Animated gradient orbs */
+    .orb {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(100px);
+      opacity: .25;
+      pointer-events: none;
+      animation: drift 12s ease-in-out infinite alternate;
+    }
+    .orb-1 { width: 500px; height: 500px; background: #02e600; top: -120px; left: -120px; }
+    .orb-2 { width: 400px; height: 400px; background: #5ed4ff; bottom: -100px; right: -100px; animation-delay: -6s; }
+    .orb-3 { width: 300px; height: 300px; background: #ffabf3; top: 50%; left: 50%; transform: translate(-50%,-50%); animation-delay: -3s; opacity: .12; }
+    @keyframes drift {
+      to { transform: translate(40px, 30px) scale(1.1); }
+    }
+
+    .login-card {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 420px;
+      padding: 48px 40px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      box-shadow: 0 0 60px rgba(0,0,0,.4);
+      text-align: center;
+    }
+    .logo-ring {
+      width: 72px;
+      height: 72px;
+      margin: 0 auto 24px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), #5ed4ff);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 30px var(--glow);
+    }
+    .logo-ring svg { width: 36px; height: 36px; fill: #0a0e1a; }
+    h1 { font-size: 1.5rem; font-weight: 700; margin-bottom: 6px; }
+    .subtitle { color: var(--text-muted); font-size: .875rem; margin-bottom: 32px; }
+
+    .pin-group {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin-bottom: 24px;
+    }
+    .pin-box {
+      width: 48px; height: 56px;
+      text-align: center;
+      font-size: 1.5rem;
+      font-weight: 600;
+      letter-spacing: 0;
+      background: var(--bg);
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      color: var(--text);
+      caret-color: var(--accent);
+      outline: none;
+      transition: border-color .2s, box-shadow .2s;
+    }
+    .pin-box:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--glow);
+    }
+    .pin-box.error { border-color: var(--error); }
+
+    .error-msg {
+      color: var(--error);
+      font-size: .8125rem;
+      margin-top: -14px;
+      margin-bottom: 18px;
+      display: none;
+    }
+    .error-msg.show { display: block; }
+
+    .login-btn {
+      width: 100%;
+      padding: 14px;
+      font-size: .9375rem;
+      font-weight: 600;
+      color: #0a0e1a;
+      background: linear-gradient(135deg, var(--accent), var(--accent-dim));
+      border: none;
+      border-radius: 14px;
+      cursor: pointer;
+      transition: opacity .2s, transform .1s;
+    }
+    .login-btn:hover { opacity: .9; }
+    .login-btn:active { transform: scale(.98); }
+    .login-btn:disabled { opacity: .4; cursor: not-allowed; }
+
+    .footer-note {
+      margin-top: 28px;
+      font-size: .75rem;
+      color: var(--text-muted);
+    }
+
+    /* Shake animation for wrong pin */
+    @keyframes shake { 0%,100%{transform:translateX(0)} 20%,60%{transform:translateX(-8px)} 40%,80%{transform:translateX(8px)} }
+    .shake { animation: shake .4s ease; }
+  </style>
+</head>
+<body>
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+
+  <div class="login-card" id="card">
+    <div class="logo-ring">
+      <svg viewBox="0 0 24 24"><path d="M12.65 10A5.99 5.99 0 0 0 7 6c-3.31 0-6 2.69-6 6s2.69 6 6 6a5.99 5.99 0 0 0 5.65-4H17v4h4v-4h2v-4H12.65zM7 14c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z"/></svg>
+    </div>
+    <h1>Translation Admin</h1>
+    <p class="subtitle">Enter admin PIN to manage Arabic translations</p>
+
+    <form id="pin-form" action="/admin/login" method="POST" autocomplete="off">
+      <div class="pin-group" id="pin-group">
+        <input class="pin-box" type="password" inputmode="numeric" maxlength="1" pattern="[0-9]" required autofocus />
+        <input class="pin-box" type="password" inputmode="numeric" maxlength="1" pattern="[0-9]" required />
+        <input class="pin-box" type="password" inputmode="numeric" maxlength="1" pattern="[0-9]" required />
+        <input class="pin-box" type="password" inputmode="numeric" maxlength="1" pattern="[0-9]" required />
+        <input class="pin-box" type="password" inputmode="numeric" maxlength="1" pattern="[0-9]" required />
+        <input class="pin-box" type="password" inputmode="numeric" maxlength="1" pattern="[0-9]" required />
+      </div>
+      <input type="hidden" name="pin" id="pin-hidden" />
+      <p class="error-msg" id="err"><%= typeof error !== 'undefined' ? error : '' %></p>
+      <button class="login-btn" type="submit" id="submit-btn" disabled>Unlock</button>
+    </form>
+
+    <p class="footer-note">Dhofar University &mdash; CNC Department</p>
+  </div>
+
+  <script>
+    (function () {
+      var boxes = document.querySelectorAll('.pin-box');
+      var hidden = document.getElementById('pin-hidden');
+      var btn = document.getElementById('submit-btn');
+      var err = document.getElementById('err');
+      var card = document.getElementById('card');
+
+      if (err.textContent.trim()) { err.classList.add('show'); card.classList.add('shake'); }
+
+      function getPin() {
+        var v = '';
+        boxes.forEach(function (b) { v += b.value; });
+        return v;
+      }
+      function sync() {
+        var pin = getPin();
+        hidden.value = pin;
+        btn.disabled = pin.length < 6;
+      }
+
+      boxes.forEach(function (box, i) {
+        box.addEventListener('input', function () {
+          box.value = box.value.replace(/\D/g, '').slice(0, 1);
+          if (box.value && i < boxes.length - 1) boxes[i + 1].focus();
+          err.classList.remove('show');
+          boxes.forEach(function (b) { b.classList.remove('error'); });
+          sync();
+        });
+        box.addEventListener('keydown', function (e) {
+          if (e.key === 'Backspace' && !box.value && i > 0) {
+            boxes[i - 1].focus();
+            boxes[i - 1].value = '';
+            sync();
+          }
+        });
+        box.addEventListener('paste', function (e) {
+          e.preventDefault();
+          var data = (e.clipboardData || window.clipboardData).getData('text').replace(/\D/g, '').slice(0, 6);
+          for (var j = 0; j < data.length && i + j < boxes.length; j++) {
+            boxes[i + j].value = data[j];
+          }
+          var next = Math.min(i + data.length, boxes.length - 1);
+          boxes[next].focus();
+          sync();
+        });
+      });
+    })();
+  </script>
+</body>
+</html>
