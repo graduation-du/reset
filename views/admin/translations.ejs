@@ -300,16 +300,18 @@
       var arData = <%- JSON.stringify(ar) %>;
 
       /* ---- Group keys by prefix ---- */
+      var hiddenPrefixes = { onboard: true };
       var groups = {};
       var groupOrder = [];
       Object.keys(enData).forEach(function (key) {
         var prefix = key.split('.')[0];
+        if (hiddenPrefixes[prefix]) return;
         if (!groups[prefix]) { groups[prefix] = []; groupOrder.push(prefix); }
         groups[prefix].push(key);
       });
 
       var sectionLabels = {
-        nav: 'Navbar', splash: 'Splash Screen', onboard: 'Onboarding',
+        nav: 'Navbar', splash: 'Splash Screen',
         sid: 'Student ID', dob: 'Date of Birth', cid: 'Civil ID',
         mob: 'Mobile Number', shared: 'Shared / Dialogs', success: 'Success Screen',
         idle: 'Idle Timeout', footer: 'Footer', step: 'Progress Steps',
@@ -435,8 +437,13 @@
         btn.disabled = true;
         btn.textContent = 'Saving…';
 
-        // Build updated ar object
+        // Build updated ar object — include ALL arData keys (even hidden ones like onboard)
         var updated = {};
+        // Preserve keys from arData that aren't shown in editor
+        Object.keys(arData).forEach(function (key) {
+          updated[key] = arData[key];
+        });
+        // Overwrite with editor values
         Object.keys(enData).forEach(function (key) {
           updated[key] = textareaMap[key] ? textareaMap[key].value : (arData[key] || '');
         });
@@ -455,6 +462,10 @@
           dirtySet.clear();
           Object.values(textareaMap).forEach(function (ta) { ta.classList.remove('dirty'); });
           syncDirty();
+          // Reset any search-based hiding so all sections remain visible
+          document.getElementById('search').value = '';
+          editor.querySelectorAll('.section').forEach(function (s) { s.style.display = ''; });
+          editor.querySelectorAll('.row').forEach(function (r) { r.style.display = ''; });
           showToast('success');
           btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V7l-4-4zm-5 16a3 3 0 1 1 0-6 3 3 0 0 1 0 6zm3-10H5V5h10v4z"/></svg> Save All';
         })
